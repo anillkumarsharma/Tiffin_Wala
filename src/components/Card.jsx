@@ -1,5 +1,7 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+
+const screenWidth = Dimensions.get('window').width;
 
 const TiffinCard = ({
   image,
@@ -13,7 +15,7 @@ const TiffinCard = ({
 }) => {
   return (
     <TouchableOpacity style={styles.card} onPress={onPress}>
-      <Image source={{ uri: image }} style={styles.image} />
+      <Image source={image} style={styles.image} />
       
       <View style={styles.infoContainer}>
         <Text style={styles.title}>{title}</Text>
@@ -37,8 +39,8 @@ const TiffinCard = ({
 };
 
 const styles = StyleSheet.create({
-  card: {
-    flexDirection: 'column',
+ card: {
+    width: screenWidth - 24, // full width minus horizontal margin
     margin: 12,
     borderRadius: 12,
     backgroundColor: '#fff',
@@ -46,13 +48,12 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   image: {
-    width: 100,
-    height: 100,
+    width: '100%',
+    height: 160,
+    resizeMode: 'cover',
   },
   infoContainer: {
-    flex: 1,
     padding: 10,
-    justifyContent: 'space-between',
   },
   title: {
     fontSize: 16,
@@ -62,9 +63,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginVertical: 2,
+    flexWrap: 'wrap',
   },
   rating: {
-    marginLeft: 4,
     fontSize: 14,
     color: '#555',
   },
@@ -83,6 +84,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 2,
     marginRight: 6,
+    marginTop: 4,
     fontSize: 12,
     color: '#444',
   },
@@ -90,7 +92,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: '#2E8B57',
-    marginTop: 4,
+    marginTop: 6,
   },
 });
 
