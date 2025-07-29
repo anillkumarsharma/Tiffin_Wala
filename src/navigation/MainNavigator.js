@@ -26,7 +26,7 @@ const TIffinTabs = () => (
       headerShown: false,
       tabBarIcon: ({ focused }) => {
         const icons = {
-          Home: require('../../assets/tiffinnn.png'),
+          Home: require('../../assets/Home.png'),
           Search: require('../../assets/search.jpg'),
           Details: require('../../assets/tiffin1.jpg')
         };
