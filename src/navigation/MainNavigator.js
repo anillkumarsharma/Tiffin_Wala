@@ -3,9 +3,9 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NavigationContainer } from '@react-navigation/native';
 import Home from '../screens/Home/Home';
 import Search from '../screens/Search/Search';
-import Details from '../screens/Details/Details';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Image } from 'react-native';
+import TiffinDetail from '../screens/Details/TiffinDetail';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -45,7 +45,6 @@ const TIffinTabs = () => (
   >
     <Tab.Screen name="Home" component={Home} />
     <Tab.Screen name="Search" component={Search} />
-    <Tab.Screen name="Details" component={Details}/>
   </Tab.Navigator>
 );
 
@@ -54,7 +53,7 @@ const MainNavigator = () => (
   <NavigationContainer>
     <Stack.Navigator initialRouteName='Tabs' screenOptions={{ headerShown: false }}>
       <Stack.Screen name='Tabs' component={TIffinTabs} />
-      <Stack.Screen name='Details' component={Details} />
+      <Stack.Screen name='TiffinDetail' component={TiffinDetail} />
     </Stack.Navigator>
   </NavigationContainer>
 );
