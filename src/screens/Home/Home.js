@@ -2,7 +2,7 @@ import { View, Text, ScrollView, TextInput, StyleSheet, TouchableOpacity } from 
 import React, { useState } from 'react';
 import TiffinCard from '../../components/Card';
 
-const Home = () => {
+const Home = ({navigation}) => {
   const [searchQuery, setSearchQuery] = useState('');
 
   const tiffinData = [
@@ -94,6 +94,10 @@ const Home = () => {
     setSearchQuery('');
   };
 
+   const handleTiffinCardPress = (item) => {
+    navigation.navigate('TiffinDetail', { tiffinData: item });
+  };
+
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -142,7 +146,7 @@ const Home = () => {
                 rate={item.rate}
                 thaliType={item.thaliType}
                 cuisineType={item.cuisineType}
-                onPress={() => console.log(`${item.title} pressed`)}
+                onPress={() => handleTiffinCardPress(item)}
               />
             ))
           ) : (
