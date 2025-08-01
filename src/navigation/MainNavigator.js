@@ -7,6 +7,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Image } from 'react-native';
 import TiffinDetail from '../screens/Details/TiffinDetail';
 import MyOrders from '../screens/MyOrders/MyOrders';
+import SplashScreen from '../screens/splash/splash';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -28,7 +29,7 @@ const TIffinTabs = () => (
       tabBarIcon: ({ focused }) => {
         const icons = {
           Home: require('../../assets/Home.png'),
-          Search: require('../../assets/search.jpg'),
+          SplashScreen: require('../../assets/search.jpg'),
           MyOrders: require('../../assets/Orders.webp')
         };
 
@@ -45,7 +46,7 @@ const TIffinTabs = () => (
     })}
   >
     <Tab.Screen name="Home" component={Home} />
-    <Tab.Screen name="Search" component={Search} />
+    <Tab.Screen name="Splash" component={SplashScreen} />
     <Tab.Screen name='MyOrders' component={MyOrders} />
   </Tab.Navigator>
 );
@@ -57,6 +58,7 @@ const MainNavigator = () => (
       <Stack.Screen name='Tabs' component={TIffinTabs} />
       <Stack.Screen name='TiffinDetail' component={TiffinDetail} />
       <Stack.Screen name='MyOrders' component={MyOrders} />
+      <Stack.Screen name='Splash' component={SplashScreen} />
     </Stack.Navigator>
   </NavigationContainer>
 );
