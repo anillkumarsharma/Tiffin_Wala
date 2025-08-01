@@ -12,6 +12,8 @@ const TiffinDetail = ({ route, navigation }) => {
   const [activeTab, setActiveTab] = useState('menu');
   const [selectedMeals, setSelectedMeals] = useState([]);
   const [selectedDuration, setSelectedDuration] = useState('single');
+  const [quantity, setQuantity] = useState(1);
+
 
   // Sample menu items for the tiffin center
   const menuItems = [
@@ -115,10 +117,11 @@ const TiffinDetail = ({ route, navigation }) => {
         ),
         duration: durationOptions.find(option => option.id === selectedDuration)?.label,
         price: selectedTiffin.price,
-        quantity: selectedDuration === 'weekly' ? 7 : selectedMeals.length,
-        totalAmount: selectedDuration === 'weekly' 
-          ? selectedTiffin.price * 7 * selectedMeals.length
-          : selectedTiffin.price * selectedMeals.length,
+        quantity,
+totalAmount: selectedDuration === 'weekly' 
+  ? selectedTiffin.price * 7 * selectedMeals.length * quantity
+  : selectedTiffin.price * selectedMeals.length * quantity,
+
         status: 'confirmed',
         deliveryTime: getDeliveryTime(),
         paymentMethod: 'Online', // You can make this dynamic
@@ -381,6 +384,26 @@ const TiffinDetail = ({ route, navigation }) => {
                 ))}
               </View>
             </View>
+<View style={styles.quantitySection}>
+  <Text style={styles.selectionTitle}>Quantity</Text>
+  <View style={styles.quantityControls}>
+    <TouchableOpacity 
+      style={styles.qtyButton} 
+      onPress={() => setQuantity(prev => Math.max(1, prev - 1))}
+    >
+      <Text style={styles.qtyButtonText}>−</Text>
+    </TouchableOpacity>
+
+    <Text style={styles.qtyValue}>{quantity}</Text>
+
+    <TouchableOpacity 
+      style={styles.qtyButton} 
+      onPress={() => setQuantity(prev => prev + 1)}
+    >
+      <Text style={styles.qtyButtonText}>+</Text>
+    </TouchableOpacity>
+  </View>
+</View>
 
             {/* Order Summary */}
             <View style={styles.orderSummarySection}>
@@ -401,8 +424,9 @@ const TiffinDetail = ({ route, navigation }) => {
                 <Text style={styles.summaryItem}>
                   <Text style={styles.summaryLabel}>Total: </Text>
                   ₹{selectedDuration === 'weekly' 
-                    ? selectedTiffin.price * 7 * selectedMeals.length
-                    : selectedTiffin.price * selectedMeals.length}
+  ? selectedTiffin.price * 7 * selectedMeals.length * quantity
+  : selectedTiffin.price * selectedMeals.length * quantity}
+
                 </Text>
               )}
             </View>
@@ -788,6 +812,33 @@ const styles = StyleSheet.create({
   selectedDurationOptionText: {
     color: '#fff',
   },
+  quantitySection: {
+  marginBottom: 25,
+},
+quantityControls: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'center',
+  marginTop: 10,
+},
+qtyButton: {
+  backgroundColor: colors.Primary,
+  paddingHorizontal: 15,
+  paddingVertical: 5,
+  borderRadius: 5,
+},
+qtyButtonText: {
+  fontSize: 20,
+  color: '#fff',
+  fontWeight: 'bold',
+},
+qtyValue: {
+  fontSize: 18,
+  fontWeight: 'bold',
+  marginHorizontal: 20,
+  color: '#333',
+},
+
   orderSummarySection: {
     backgroundColor: '#f8f8f8',
     borderRadius: 15,
