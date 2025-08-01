@@ -19,7 +19,7 @@ const Home = ({navigation}) => {
     },
     {
       id: '2',
-      image: require('../../../assets/tiffin2.jpg'),
+      image: require('../../../assets/tiffin3.jpeg'),
       title: 'Mummy Da Dhaba',
       rating: '4.8',
       timing: '11:00 AM - 3:00 PM',
@@ -29,7 +29,7 @@ const Home = ({navigation}) => {
     },
     {
       id: '3',
-      image: require('../../../assets/tiffin3.jpeg'),
+      image: require('../../../assets/tiffin2.jpg'),
       title: 'Healthy Bites',
       rating: '4.2',
       timing: '10:00 AM - 1:30 PM',
@@ -39,7 +39,7 @@ const Home = ({navigation}) => {
     },
     {
       id: '4',
-      image: require('../../../assets/tiffin2.jpg'),
+      image: require('../../../assets/tiffin3.jpeg'),
       title: 'Spicy Treats',
       rating: '4.0',
       timing: '12:00 PM - 3:00 PM',

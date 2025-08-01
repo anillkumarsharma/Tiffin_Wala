@@ -2,12 +2,12 @@ import React from 'react';
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NavigationContainer } from '@react-navigation/native';
 import Home from '../screens/Home/Home';
-import Search from '../screens/Search/Search';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Image } from 'react-native';
 import TiffinDetail from '../screens/Details/TiffinDetail';
 import MyOrders from '../screens/MyOrders/MyOrders';
 import SplashScreen from '../screens/splash/splash';
+import colors from '../constants/colors';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -26,6 +26,8 @@ const TIffinTabs = () => (
         top: 3,
       },
       headerShown: false,
+       tabBarActiveTintColor: colors.Primary, // 👈 Your custom active color
+    tabBarInactiveTintColor: '#999', 
       tabBarIcon: ({ focused }) => {
         const icons = {
           Home: require('../../assets/Home.png'),
@@ -39,6 +41,7 @@ const TIffinTabs = () => (
             style={{
               width: 32,
               height: 32,
+              tintColor:colors.Primary
             }}
           />
         );

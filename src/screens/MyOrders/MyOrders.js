@@ -3,96 +3,41 @@ import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Image, RefreshCon
 import React, { useState, useEffect } from 'react';
 import leftArrow from '../../../assets/left.png'
 import colors from '../../constants/colors';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const MyOrders = ({ navigation }) => {
   const [orders, setOrders] = useState([]);
   const [activeTab, setActiveTab] = useState('all');
   const [refreshing, setRefreshing] = useState(false);
 
-  // Sample orders data - Replace with actual data from your backend/storage
-  const sampleOrders = [
-    {
-      id: 'ORD001',
-      orderDate: '01 Aug 2025',
-      orderTime: '10:30 AM',
-      tiffinName: 'Regular Thali',
-      tiffinCenter: 'Mama\'s Kitchen',
-      tiffinImage: require('../../../assets/tiffin1.jpg'),// Replace with actual image path
-      meals: ['Lunch', 'Dinner'],
-      duration: 'Single Day',
-      price: 120,
-      quantity: 2,
-      totalAmount: 240,
-      status: 'confirmed',
-      deliveryTime: '12:30 PM - 1:30 PM',
-      paymentMethod: 'Online',
-      orderNumber: '#12345'
-    },
-    {
-      id: 'ORD002',
-      orderDate: '31 July 2025',
-      orderTime: '2:15 PM',
-      tiffinName: 'Special Thali',
-      tiffinCenter: 'Home Food Corner',
-      tiffinImage: require('../../../assets/tiffin3.jpeg'), // Replace with actual image path
-      meals: ['Lunch'],
-      duration: '1 Week',
-      price: 150,
-      quantity: 7,
-      totalAmount: 1050,
-      status: 'delivered',
-      deliveryTime: '1:00 PM - 2:00 PM',
-      paymentMethod: 'Cash',
-      orderNumber: '#12344'
-    },
-    {
-      id: 'ORD003',
-      orderDate: '30 July 2025',
-      orderTime: '11:45 AM',
-      tiffinName: 'Premium Thali',
-      tiffinCenter: 'Royal Tiffin Service',
-      tiffinImage:require('../../../assets/tiffinnn.png'), // Replace with actual image path
-      meals: ['Breakfast', 'Lunch', 'Dinner'],
-      duration: 'Single Day',
-      price: 170,
-      quantity: 3,
-      totalAmount: 510,
-      status: 'preparing',
-      deliveryTime: '8:00 AM - 9:00 AM',
-      paymentMethod: 'Online',
-      orderNumber: '#12343'
-    },
-    {
-      id: 'ORD004',
-      orderDate: '28 July 2025',
-      orderTime: '4:20 PM',
-      tiffinName: 'Regular Thali',
-      tiffinCenter: 'Ghar Ka Khana',
-      tiffinImage:require('../../../assets/tiffin1.jpg'), // Replace with actual image path
-      meals: ['Dinner'],
-      duration: '1 Week',
-      price: 120,
-      quantity: 7,
-      totalAmount: 840,
-      status: 'cancelled',
-      deliveryTime: '7:00 PM - 8:00 PM',
-      paymentMethod: 'Online',
-      orderNumber: '#12342'
-    }
-  ];
+
 
   useEffect(() => {
-    setOrders(sampleOrders);
-  }, []);
+  fetchOrders();
+}, []);
 
-  const onRefresh = () => {
-    setRefreshing(true);
-    // Simulate API call
-    setTimeout(() => {
-      setOrders(sampleOrders);
-      setRefreshing(false);
-    }, 1000);
-  };
+const fetchOrders = async () => {
+  try {
+    const storedOrders = await AsyncStorage.getItem('userOrders');
+    if (storedOrders !== null) {
+      setOrders(JSON.parse(storedOrders));
+    } else {
+      setOrders([]);
+    }
+  } catch (error) {
+    console.log('Failed to fetch orders from AsyncStorage:', error);
+  }
+};
+
+
+
+
+ const onRefresh = async () => {
+  setRefreshing(true);
+  await fetchOrders();
+  setRefreshing(false);
+};
+
 
   const getStatusColor = (status) => {
     switch (status) {
