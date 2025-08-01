@@ -1,6 +1,8 @@
-// TiffinDetail.js
+// TiffinDetail.js - Updated confirmOrder function and imports
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Image, Modal, Alert } from 'react-native';
 import React, { useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage'; 
+import leftArrow from "../../../assets/left.png"
 
 const TiffinDetail = ({ route, navigation }) => {
   const { tiffinData } = route.params;
@@ -38,45 +40,43 @@ const TiffinDetail = ({ route, navigation }) => {
     },
   ];
 
-
   const reviewsData = [
-  {
-    id: '1',
-    userName: 'Anjali Mehra',
-    rating: 5,
-    date: '28 July 2025',
-    review: 'Absolutely loved the food! The packaging was neat, and the delivery was on time. Highly recommend!',
-  },
-  {
-    id: '2',
-    userName: 'Rahul Singh',
-    rating: 4,
-    date: '27 July 2025',
-    review: 'Good quality and taste. Just a bit too spicy for my preference, but overall a great experience.',
-  },
-  {
-    id: '3',
-    userName: 'Priya Sharma',
-    rating: 5,
-    date: '25 July 2025',
-    review: 'Tastes just like home-cooked food. Affordable and fresh. Will definitely order again!',
-  },
-  {
-    id: '4',
-    userName: 'Amit Verma',
-    rating: 3,
-    date: '23 July 2025',
-    review: 'Decent service, but delivery was late by 20 minutes. Food was still warm and tasty though.',
-  },
-  {
-    id: '5',
-    userName: 'Sneha Patel',
-    rating: 5,
-    date: '20 July 2025',
-    review: 'Best tiffin service I’ve used so far. Loved the variety and hygiene maintained.',
-  },
-];
-
+    {
+      id: '1',
+      userName: 'Anjali Mehra',
+      rating: 5,
+      date: '28 July 2025',
+      review: 'Absolutely loved the food! The packaging was neat, and the delivery was on time. Highly recommend!',
+    },
+    {
+      id: '2',
+      userName: 'Rahul Singh',
+      rating: 4,
+      date: '27 July 2025',
+      review: 'Good quality and taste. Just a bit too spicy for my preference, but overall a great experience.',
+    },
+    {
+      id: '3',
+      userName: 'Priya Sharma',
+      rating: 5,
+      date: '25 July 2025',
+      review: 'Tastes just like home-cooked food. Affordable and fresh. Will definitely order again!',
+    },
+    {
+      id: '4',
+      userName: 'Amit Verma',
+      rating: 3,
+      date: '23 July 2025',
+      review: 'Decent service, but delivery was late by 20 minutes. Food was still warm and tasty though.',
+    },
+    {
+      id: '5',
+      userName: 'Sneha Patel',
+      rating: 5,
+      date: '20 July 2025',
+      review: 'Best tiffin service I have used so far. Loved the variety and hygiene maintained.',
+    },
+  ];
 
   const handleOrderPress = (item) => {
     setSelectedTiffin(item);
@@ -85,65 +85,136 @@ const TiffinDetail = ({ route, navigation }) => {
     setOrderModalVisible(true);
   };
 
-  const confirmOrder = () => {
+  // Updated confirmOrder function to save order and navigate to MyOrders
+  const confirmOrder = async () => {
     if (selectedMeals.length === 0) {
-      alert('Please select at least one meal time');
+      Alert.alert('Please select at least one meal time');
       return;
     }
 
-   Alert.alert("Success", "Your order has been placed.");
-    
-    // Handle order confirmation logic here
-    console.log('Order confirmed for:', {
-      tiffin: selectedTiffin,
-      meals: selectedMeals,
-      duration: selectedDuration
-    });
-    setOrderModalVisible(false);
-    // You can navigate to order confirmation screen or show success message
+    try {
+      // Create order object
+      const newOrder = {
+        id: `ORD${Date.now()}`,
+        orderDate: new Date().toLocaleDateString('en-IN', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric'
+        }),
+        orderTime: new Date().toLocaleTimeString('en-IN', {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true
+        }),
+        tiffinName: selectedTiffin.name,
+        tiffinCenter: tiffinData.title,
+        tiffinImage: selectedTiffin.image,
+        meals: selectedMeals.map(mealId => 
+          mealOptions.find(option => option.id === mealId)?.label
+        ),
+        duration: durationOptions.find(option => option.id === selectedDuration)?.label,
+        price: selectedTiffin.price,
+        quantity: selectedDuration === 'weekly' ? 7 : selectedMeals.length,
+        totalAmount: selectedDuration === 'weekly' 
+          ? selectedTiffin.price * 7 * selectedMeals.length
+          : selectedTiffin.price * selectedMeals.length,
+        status: 'confirmed',
+        deliveryTime: getDeliveryTime(),
+        paymentMethod: 'Online', // You can make this dynamic
+        orderNumber: `#${Math.floor(Math.random() * 90000) + 10000}`
+      };
+
+      // Get existing orders from AsyncStorage
+      const existingOrders = await AsyncStorage.getItem('userOrders');
+      const orders = existingOrders ? JSON.parse(existingOrders) : [];
+      
+      // Add new order to the beginning of the array
+      orders.unshift(newOrder);
+      
+      // Save updated orders to AsyncStorage
+      await AsyncStorage.setItem('userOrders', JSON.stringify(orders));
+
+      // Show success message
+      Alert.alert(
+        "Order Placed Successfully!", 
+        `Your order ${newOrder.orderNumber} has been confirmed.`,
+        [
+          {
+            text: "View Orders",
+            onPress: () => {
+              setOrderModalVisible(false);
+              navigation.navigate('MyOrders');
+            }
+          },
+          {
+            text: "Continue Shopping",
+            onPress: () => setOrderModalVisible(false)
+          }
+        ]
+      );
+
+      console.log('Order saved successfully:', newOrder);
+      
+    } catch (error) {
+      console.error('Error saving order:', error);
+      Alert.alert("Error", "Failed to place order. Please try again.");
+    }
+  };
+
+  // Helper function to get delivery time based on selected meals
+  const getDeliveryTime = () => {
+    if (selectedMeals.includes('breakfast')) return '8:00 AM - 9:00 AM';
+    if (selectedMeals.includes('lunch')) return '12:30 PM - 1:30 PM';
+    if (selectedMeals.includes('dinner')) return '7:00 PM - 8:00 PM';
+    return '12:30 PM - 1:30 PM'; // default
   };
 
   const mealOptions = [
-  { id: 'breakfast', label: 'Breakfast' },
-  { id: 'lunch', label: 'Lunch' },
-  { id: 'dinner', label: 'Dinner' },
-];
+    { id: 'breakfast', label: 'Breakfast' },
+    { id: 'lunch', label: 'Lunch' },
+    { id: 'dinner', label: 'Dinner' },
+  ];
 
-const durationOptions = [
-  { id: 'single', label: 'Single Day' },
-  { id: 'weekly', label: '1 Week' },
-];
+  const durationOptions = [
+    { id: 'single', label: 'Single Day' },
+    { id: 'weekly', label: '1 Week' },
+  ];
 
-const toggleMealSelection = (mealId) => {
-  setSelectedMeals((prev) =>
-    prev.includes(mealId)
-      ? prev.filter((id) => id !== mealId)
-      : [...prev, mealId]
-  );
-};
+  const toggleMealSelection = (mealId) => {
+    setSelectedMeals((prev) =>
+      prev.includes(mealId)
+        ? prev.filter((id) => id !== mealId)
+        : [...prev, mealId]
+    );
+  };
 
-const getMealSummary = () => {
-  const selectedLabels = mealOptions
-    .filter((option) => selectedMeals.includes(option.id))
-    .map((option) => option.label);
-  return selectedLabels.join(', ') || 'None selected';
-};
+  const getMealSummary = () => {
+    const selectedLabels = mealOptions
+      .filter((option) => selectedMeals.includes(option.id))
+      .map((option) => option.label);
+    return selectedLabels.join(', ') || 'None selected';
+  };
 
-const getDurationLabel = () => {
-  const selected = durationOptions.find((option) => option.id === selectedDuration);
-  return selected?.label || 'None';
-};
-
-
+  const getDurationLabel = () => {
+    const selected = durationOptions.find((option) => option.id === selectedDuration);
+    return selected?.label || 'None';
+  };
 
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Text style={styles.backIcon}>←</Text>
+          <Image source={leftArrow} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Tiffin Details</Text>
+        {/* Add My Orders button */}
+        <TouchableOpacity 
+          onPress={() => navigation.navigate('MyOrders')}
+          style={styles.ordersButton}
+        >
+          <Text style={styles.ordersButtonText}>My Orders</Text>
+        </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
@@ -151,12 +222,14 @@ const getDurationLabel = () => {
         <View style={styles.tiffinInfoCard}>
           <Image source={tiffinData.image} style={styles.tiffinImage} />
           <View style={styles.tiffinInfo}>
-            <Text style={styles.tiffinTitle}>{tiffinData.title}</Text>
+            <View>
+              <Text style={styles.tiffinTitle}>{tiffinData.title}</Text>
             <View style={styles.ratingContainer}>
               <Text style={styles.rating}>⭐ {tiffinData.rating}</Text>
               <Text style={styles.cuisineType}>{tiffinData.cuisineType}</Text>
             </View>
             <Text style={styles.timing}>🕒 {tiffinData.timing}</Text>
+            </View>
             <View style={styles.typeContainer}>
               <Text style={[styles.thaliType, tiffinData.thaliType === 'Veg' ? styles.vegType : styles.nonVegType]}>
                 {tiffinData.thaliType === 'Veg' ? '🟢' : '🔴'} {tiffinData.thaliType}
@@ -263,7 +336,7 @@ const getDurationLabel = () => {
               <Text style={styles.selectionSubtitle}>You can select multiple options</Text>
               
               <View style={styles.mealOptionsContainer}>
-                {mealOptions.map((meal) => (
+                {mealOptions?.map((meal) => (
                   <TouchableOpacity
                     key={meal.id}
                     style={[
@@ -323,6 +396,14 @@ const getDurationLabel = () => {
                 <Text style={styles.summaryLabel}>Duration: </Text>
                 {getDurationLabel()}
               </Text>
+              {selectedTiffin && selectedMeals.length > 0 && (
+                <Text style={styles.summaryItem}>
+                  <Text style={styles.summaryLabel}>Total: </Text>
+                  ₹{selectedDuration === 'weekly' 
+                    ? selectedTiffin.price * 7 * selectedMeals.length
+                    : selectedTiffin.price * selectedMeals.length}
+                </Text>
+              )}
             </View>
 
             <View style={styles.modalButtons}>
@@ -340,8 +421,7 @@ const getDurationLabel = () => {
                 onPress={confirmOrder}
                 disabled={selectedMeals.length === 0}
               >
-                <Text style={styles.confirmButtonText}
-                >Confirm Order</Text>
+                <Text style={styles.confirmButtonText}>Confirm Order</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -359,6 +439,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     backgroundColor: '#fff',
     paddingHorizontal: 20,
     paddingVertical: 15,
@@ -379,6 +460,18 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: '#333',
+    flex: 1,
+  },
+  ordersButton: {
+    backgroundColor: '#ff6b35',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 15,
+  },
+  ordersButtonText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
   },
   scrollView: {
     flex: 1,
@@ -386,7 +479,6 @@ const styles = StyleSheet.create({
   tiffinInfoCard: {
     backgroundColor: '#fff',
     overflow: 'hidden',
-   
   },
   tiffinImage: {
     width: '100%',
@@ -395,6 +487,10 @@ const styles = StyleSheet.create({
   },
   tiffinInfo: {
     padding: 20,
+    flexDirection:'row',
+    justifyContent:"space-between",
+    alignItems:"center"
+
   },
   tiffinTitle: {
     fontSize: 24,
@@ -444,40 +540,35 @@ const styles = StyleSheet.create({
     color: '#c62828',
   },
   tabSection: {
-  marginHorizontal: 20,
-  marginBottom: 20,
-},
-
-tabHeader: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  marginBottom: 15,
-  borderBottomWidth: 1,
-  borderColor: '#ddd',
-},
-
-tabButton: {
-  flex: 1,
-  paddingVertical: 12,
-  alignItems: 'center',
-  borderBottomWidth: 3,
-  borderColor: 'transparent',
-},
-
-activeTab: {
-  borderColor: '#ff6b35',
-},
-
-tabText: {
-  fontSize: 16,
-  fontWeight: '500',
-  color: '#666',
-},
-
-activeTabText: {
-  color: '#ff6b35',
-  fontWeight: 'bold',
-},
+    marginHorizontal: 20,
+    marginBottom: 20,
+  },
+  tabHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 15,
+    borderBottomWidth: 1,
+    borderColor: '#ddd',
+  },
+  tabButton: {
+    flex: 1,
+    paddingVertical: 12,
+    alignItems: 'center',
+    borderBottomWidth: 3,
+    borderColor: 'transparent',
+  },
+  activeTab: {
+    borderColor: '#ff6b35',
+  },
+  tabText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#666',
+  },
+  activeTabText: {
+    color: '#ff6b35',
+    fontWeight: 'bold',
+  },
   menuSection: {
     marginBottom: 20,
   },
@@ -541,65 +632,55 @@ activeTabText: {
     fontWeight: 'bold',
     fontSize: 14,
   },
-
   reviewsSection: {
-  marginBottom: 20,
-},
-
-reviewCard: {
-  backgroundColor: '#fff',
-  borderRadius: 15,
-  padding: 15,
-  marginBottom: 15,
-  elevation: 2,
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 1 },
-  shadowOpacity: 0.1,
-  shadowRadius: 2,
-},
-
-reviewHeader: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  marginBottom: 10,
-},
-
-reviewUserInfo: {
-  flexDirection: 'column',
-},
-
-reviewUserName: {
-  fontSize: 16,
-  fontWeight: 'bold',
-  color: '#333',
-  marginBottom: 4,
-},
-
-reviewRating: {
-  flexDirection: 'row',
-},
-
-star: {
-  fontSize: 16,
-  color: '#ccc',
-  marginRight: 2,
-},
-
-filledStar: {
-  color: '#ffb300',
-},
-
-reviewDate: {
-  fontSize: 12,
-  color: '#999',
-},
-
-reviewText: {
-  fontSize: 14,
-  color: '#555',
-  lineHeight: 20,
-},
+    marginBottom: 20,
+  },
+  reviewCard: {
+    backgroundColor: '#fff',
+    borderRadius: 15,
+    padding: 15,
+    marginBottom: 15,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  reviewHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  reviewUserInfo: {
+    flexDirection: 'column',
+  },
+  reviewUserName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 4,
+  },
+  reviewRating: {
+    flexDirection: 'row',
+  },
+  star: {
+    fontSize: 16,
+    color: '#ccc',
+    marginRight: 2,
+  },
+  filledStar: {
+    color: '#ffb300',
+  },
+  reviewDate: {
+    fontSize: 12,
+    color: '#999',
+  },
+  reviewText: {
+    fontSize: 14,
+    color: '#555',
+    lineHeight: 20,
+  },
   contactSection: {
     marginHorizontal: 20,
     marginBottom: 30,
