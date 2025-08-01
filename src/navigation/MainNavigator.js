@@ -8,6 +8,8 @@ import TiffinDetail from '../screens/Details/TiffinDetail';
 import MyOrders from '../screens/MyOrders/MyOrders';
 import SplashScreen from '../screens/splash/splash';
 import colors from '../constants/colors';
+import LoginScreen from '../screens/Auth/LoginScreen';
+import Profile from '../screens/Profile/Profile';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -31,8 +33,9 @@ const TIffinTabs = () => (
       tabBarIcon: ({ focused }) => {
         const icons = {
           Home: require('../../assets/Home.png'),
-          SplashScreen: require('../../assets/search.jpg'),
-          MyOrders: require('../../assets/Orders.webp')
+          MyOrders: require('../../assets/Orders.webp'),
+          Profile: require('../../assets/Profile.png')
+
         };
 
         return (
@@ -49,8 +52,9 @@ const TIffinTabs = () => (
     })}
   >
     <Tab.Screen name="Home" component={Home} />
-    <Tab.Screen name="Splash" component={SplashScreen} />
     <Tab.Screen name='MyOrders' component={MyOrders} />
+    <Tab.Screen name="Profile" component={Profile} />
+
   </Tab.Navigator>
 );
 
@@ -62,6 +66,8 @@ const MainNavigator = () => (
       <Stack.Screen name='TiffinDetail' component={TiffinDetail} />
       <Stack.Screen name='MyOrders' component={MyOrders} />
       <Stack.Screen name='Splash' component={SplashScreen} />
+      <Stack.Screen name='Login' component={LoginScreen} />
+      <Stack.Screen name='Profile' component={Profile}/>
     </Stack.Navigator>
   </NavigationContainer>
 );
