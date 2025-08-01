@@ -3,6 +3,7 @@ import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Image, Modal, Ale
 import React, { useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
 import leftArrow from "../../../assets/left.png"
+import colors from '../../constants/colors';
 
 const TiffinDetail = ({ route, navigation }) => {
   const { tiffinData } = route.params;
@@ -463,7 +464,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   ordersButton: {
-    backgroundColor: '#ff6b35',
+    backgroundColor: colors.Primary,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 15,
@@ -533,11 +534,11 @@ const styles = StyleSheet.create({
   },
   vegType: {
     backgroundColor: '#e8f5e8',
-    color: '#2e7d32',
+    color: colors.green,
   },
   nonVegType: {
     backgroundColor: '#ffebee',
-    color: '#c62828',
+    color: colors.Red,
   },
   tabSection: {
     marginHorizontal: 20,
@@ -558,7 +559,7 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
   activeTab: {
-    borderColor: '#ff6b35',
+    borderColor: colors.Primary,
   },
   tabText: {
     fontSize: 16,
@@ -566,7 +567,7 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   activeTabText: {
-    color: '#ff6b35',
+    color: colors.Primary,
     fontWeight: 'bold',
   },
   menuSection: {
@@ -619,10 +620,10 @@ const styles = StyleSheet.create({
   menuItemPrice: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#ff6b35',
+    color: colors.Primary,
   },
   orderButton: {
-    backgroundColor: '#ff6b35',
+    backgroundColor: colors.Primary,
     paddingHorizontal: 20,
     paddingVertical: 8,
     borderRadius: 20,
@@ -670,7 +671,7 @@ const styles = StyleSheet.create({
     marginRight: 2,
   },
   filledStar: {
-    color: '#ffb300',
+    color: colors.Yellow,
   },
   reviewDate: {
     fontSize: 12,
@@ -752,8 +753,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   selectedMealOption: {
-    backgroundColor: '#ff6b35',
-    borderColor: '#ff6b35',
+    backgroundColor: colors.Primary,
+    borderColor: colors.Primary,
   },
   mealOptionText: {
     fontSize: 14,
@@ -776,8 +777,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   selectedDurationOption: {
-    backgroundColor: '#ff6b35',
-    borderColor: '#ff6b35',
+    backgroundColor: colors.Primary,
+    borderColor: colors.Primary,
   },
   durationOptionText: {
     fontSize: 14,
@@ -828,7 +829,7 @@ const styles = StyleSheet.create({
   },
   confirmButton: {
     flex: 1,
-    backgroundColor: '#00C851',
+    backgroundColor: colors.green,
     paddingVertical: 15,
     borderRadius: 25,
     marginLeft: 10,

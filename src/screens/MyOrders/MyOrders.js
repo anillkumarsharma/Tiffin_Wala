@@ -2,6 +2,7 @@
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Image, RefreshControl } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import leftArrow from '../../../assets/left.png'
+import colors from '../../constants/colors';
 
 const MyOrders = ({ navigation }) => {
   const [orders, setOrders] = useState([]);
@@ -96,13 +97,13 @@ const MyOrders = ({ navigation }) => {
   const getStatusColor = (status) => {
     switch (status) {
       case 'confirmed':
-        return '#4CAF50';
+        return colors.green;
       case 'preparing':
-        return '#FF9800';
+        return colors.Primary;
       case 'delivered':
-        return '#2196F3';
+        return colors.blue;
       case 'cancelled':
-        return '#F44336';
+        return colors.Red;
       default:
         return '#666';
     }
