@@ -1,6 +1,7 @@
 import { View, Text, ScrollView, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import React, { useState } from 'react';
 import TiffinCard from '../../components/Card';
+import colors from '../../constants/colors';
 
 const Home = ({navigation}) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -178,12 +179,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: colors.white,
   },
   headerTitle: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#2E8B57',
+    color: colors.Primary,
     marginBottom: 4,
   },
   headerSubtitle: {
