@@ -10,6 +10,7 @@ import SplashScreen from '../screens/splash/splash';
 import colors from '../constants/colors';
 import LoginScreen from '../screens/Auth/LoginScreen';
 import Profile from '../screens/Profile/Profile';
+import OTPScreen from '../screens/Auth/OTPSceen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -67,6 +68,7 @@ const MainNavigator = () => (
       <Stack.Screen name='MyOrders' component={MyOrders} />
       <Stack.Screen name='Splash' component={SplashScreen} />
       <Stack.Screen name='Login' component={LoginScreen} />
+      <Stack.Screen name='OTPScreen' component={OTPScreen}/>
       <Stack.Screen name='Profile' component={Profile}/>
     </Stack.Navigator>
   </NavigationContainer>
