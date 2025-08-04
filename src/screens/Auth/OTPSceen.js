@@ -14,12 +14,13 @@ import { useAuth } from '../../Context/AuthContext';
 
 const OTPScreen = ({ navigation, route }) => {
   const { setIsAuthenticated } = useAuth();
-  const { phoneNumber, redirectTo, tiffinData } = route.params;
+  const { phoneNumber, confirmation, redirectTo, tiffinData } = route.params;
   
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [timer, setTimer] = useState(30);
   const [canResend, setCanResend] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
+   const [currentConfirmation, setCurrentConfirmation] = useState(confirmation);
   
   const otpRefs = useRef([]);
 
@@ -69,40 +70,89 @@ const OTPScreen = ({ navigation, route }) => {
     setIsVerifying(true);
 
     try {
-      // Simulate API call - replace with your actual OTP verification API
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Verify OTP with Firebase
+      const result = await currentConfirmation.confirm(otpToVerify);
       
-      // For demo purposes, accept any 6-digit OTP
-      // In real implementation, verify with your backend
-      
-      setIsAuthenticated(true);
+      if (result.user) {
+        // User authenticated successfully with Firebase
+        console.log('Firebase Auth Success:', result.user.uid);
+        
+        // Set user as authenticated in your app context
+        setIsAuthenticated(true);
 
-      // Navigate based on redirect parameters
-      if (redirectTo) {
-        navigation.replace(redirectTo, {
-          tiffinData: tiffinData,
-        });
-      } else {
-        navigation.replace('MyOrders'); 
+        // Reset navigation stack and navigate to target screen
+        if (redirectTo) {
+          navigation.reset({
+            index: 1,
+            routes: [
+              { name: 'MyOrders' },
+              { name: redirectTo, params: { tiffinData } }
+            ],
+          });
+        } else {
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'MyOrders' }],
+          });
+        }
       }
 
     } catch (error) {
-      Alert.alert('Verification Failed', 'Invalid OTP. Please try again.');
-      // Clear OTP inputs
+      console.error('Firebase OTP Verification Error:', error);
+      
+      // Handle different Firebase error types
+      if (error.code === 'auth/invalid-verification-code') {
+        Alert.alert('Invalid OTP', 'The OTP you entered is incorrect. Please try again.');
+      } else if (error.code === 'auth/code-expired') {
+        Alert.alert('OTP Expired', 'The OTP has expired. Please request a new one.');
+      } else if (error.code === 'auth/too-many-requests') {
+        Alert.alert('Too Many Attempts', 'Too many incorrect attempts. Please try again later.');
+      } else {
+        Alert.alert('Verification Failed', 'Unable to verify OTP. Please try again.');
+      }
+      
+      // Clear OTP inputs on error
       setOtp(['', '', '', '', '', '']);
-      otpRefs.current[0].focus();
+      if (otpRefs.current[0]) {
+        otpRefs.current[0].focus();
+      }
     } finally {
       setIsVerifying(false);
     }
   };
 
-  const handleResendOtp = () => {
-    // Simulate resending OTP
-    setTimer(30);
-    setCanResend(false);
-    setOtp(['', '', '', '', '', '']);
-    otpRefs.current[0].focus();
-    Alert.alert('OTP Sent', 'A new OTP has been sent to your phone number');
+  const handleResendOtp = async () => {
+    try {
+      setTimer(30);
+      setCanResend(false);
+      setOtp(['', '', '', '', '', '']);
+      
+      // Resend OTP using Firebase
+      const formattedPhone = `+91${phoneNumber}`;
+      const newConfirmation = await auth().signInWithPhoneNumber(formattedPhone);
+      
+      // Update confirmation reference
+      setCurrentConfirmation(newConfirmation);
+      
+      if (otpRefs.current[0]) {
+        otpRefs.current[0].focus();
+      }
+      
+      Alert.alert('OTP Sent', 'A new OTP has been sent to your phone number');
+      
+    } catch (error) {
+      console.error('Resend OTP Error:', error);
+      
+      if (error.code === 'auth/too-many-requests') {
+        Alert.alert('Too Many Requests', 'Please wait before requesting another OTP');
+      } else {
+        Alert.alert('Error', 'Failed to resend OTP. Please try again.');
+      }
+      
+      // Reset timer state on error
+      setCanResend(true);
+      setTimer(0);
+    }
   };
 
   const formatPhoneNumber = (phone) => {

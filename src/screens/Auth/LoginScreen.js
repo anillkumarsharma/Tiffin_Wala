@@ -16,21 +16,49 @@ import { useAuth } from '../../Context/AuthContext';
 const LoginScreen = ({ navigation, route }) => {
   const { setIsAuthenticated } = useAuth();
   const [phoneNumber, setPhoneNumber] = useState('');
+   const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
+  const handleLogin = async() => {
     // Validate phone number
-    if (phoneNumber.length < 10) {
-      alert('Please enter a valid phone number');
+   if (phoneNumber.length !== 10) {
+      Alert.alert('Invalid Number', 'Please enter a valid 10-digit phone number');
       return;
     }
-
-    // Navigate to OTP screen first
-    navigation.navigate('OTPScreen', {
-      phoneNumber: phoneNumber,
-      redirectTo: route?.params?.redirectTo,
-      tiffinData: route?.params?.tiffinData
-    });
+setLoading(true);
+    
+    try {
+      // Format phone number for Firebase (+91 for India)
+      const formattedPhone = `+91${phoneNumber}`;
+      
+      // Send OTP using Firebase
+      const confirmation = await auth().signInWithPhoneNumber(formattedPhone);
+      
+      // Navigate to OTP screen with confirmation object
+      navigation.replace('OTPScreen', {
+        phoneNumber: phoneNumber,
+        confirmation: confirmation,
+        redirectTo: route?.params?.redirectTo,
+        tiffinData: route?.params?.tiffinData
+      });
+      
+    } catch (error) {
+      console.error('Firebase OTP Error:', error);
+      
+      // Handle different error types
+      if (error.code === 'auth/invalid-phone-number') {
+        Alert.alert('Invalid Number', 'Please enter a valid phone number');
+      } else if (error.code === 'auth/too-many-requests') {
+        Alert.alert('Too Many Attempts', 'Please try again later');
+      } else if (error.code === 'auth/quota-exceeded') {
+        Alert.alert('Service Unavailable', 'SMS quota exceeded. Please try again later');
+      } else {
+        Alert.alert('Error', 'Failed to send OTP. Please check your internet connection and try again.');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
+
 
   return (
     <KeyboardAvoidingView 

@@ -4,15 +4,16 @@ import SplashScreen from 'react-native-splash-screen'
 import ErrorPage from './src/screens/ErrorPage/Errorpage';
 import NetInfo from '@react-native-community/netinfo';
 import { AuthProvider } from './src/Context/AuthContext';
+import { View, Text } from 'react-native';
+
 const App = () => {
- const [isConnected, setIsConnected] = useState(true);
+  const [isConnected, setIsConnected] = useState(true);
 
-  useEffect(()=>{
+  useEffect(() => {
     SplashScreen.hide();
-  },[])
-  
+  }, [])
 
- useEffect(() => {
+  useEffect(() => {
     const unsubscribe = NetInfo.addEventListener(state => {
       setIsConnected(state.isConnected && state.isInternetReachable !== false);
     });
@@ -29,14 +30,11 @@ const App = () => {
     return <ErrorPage onRestart={handleRestart} />;
   }
 
- 
-  
- return (
-  <AuthProvider>
-     <MainNavigator/>
-  </AuthProvider>
- )
+  return (
+    <AuthProvider>
+      <MainNavigator />
+    </AuthProvider>
+  )
 }
 
 export default App
-
