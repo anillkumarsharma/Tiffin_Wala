@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   View, 
   Text, 
@@ -11,11 +11,15 @@ import {
 } from 'react-native';
 import { useAuth } from '../../Context/AuthContext';
 import colors from '../../constants/colors';
+import { useNavigation } from '@react-navigation/native';
 
-const Profile = ({ navigation }) => {
-  const { user, logout, userPhoneNumber } = useAuth();
+const Profile = () => {
+  const { user, userPhoneNumber,logout } = useAuth();
   const [profileImage, setProfileImage] = useState(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const navigation = useNavigation();
+
+
 
   const pickImage = async () => {
     // Image picker functionality can be added later
@@ -32,6 +36,10 @@ const Profile = ({ navigation }) => {
     
     Alert.alert('Coming Soon', 'Profile picture upload will be available soon!');
   };
+
+  // src/Context/AuthContext.js
+
+
 
   const handleLogout = () => {
     Alert.alert(
@@ -51,11 +59,12 @@ const Profile = ({ navigation }) => {
     );
   };
 
-  const performLogout = async () => {
+  const performLogout = async() => {
     setIsLoggingOut(true);
     
     try {
       await logout();
+      navigation.navigate('Home')
       // The AuthContext and MainNavigator will handle navigation automatically
       console.log('User logged out successfully');
     } catch (error) {

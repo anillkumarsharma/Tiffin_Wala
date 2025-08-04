@@ -1,11 +1,13 @@
-// TiffinDetail.js - Updated confirmOrder function and imports
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Image, Modal, Alert } from 'react-native';
+
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Image, Modal, Alert, FlatList, Dimensions } from 'react-native';
 import React, { useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
 import leftArrow from "../../../assets/left.png"
 import colors from '../../constants/colors';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../../Context/AuthContext';
+const { width: deviceWidth } = Dimensions.get('window');
+
 
 const TiffinDetail = ({ route, navigation }) => {
   const { tiffinData } = route.params;
@@ -18,6 +20,9 @@ const TiffinDetail = ({ route, navigation }) => {
   const { isAuthenticated } = useAuth();
 
 
+
+   console.log('TiffinDetail received data:', tiffinData);
+
   // Sample menu items for the tiffin center
   const menuItems = [
     {
@@ -26,7 +31,7 @@ const TiffinDetail = ({ route, navigation }) => {
       description: 'Dal, Rice, 2 Roti, Sabji, Pickle, Salad',
       price: tiffinData.rate,
       type: tiffinData.thaliType,
-      image: tiffinData.image,
+      image: tiffinData.image[0],
     },
     {
       id: '2',
@@ -34,7 +39,7 @@ const TiffinDetail = ({ route, navigation }) => {
       description: 'Dal, Rice, 3 Roti, 2 Sabji, Sweet, Pickle, Salad, Raita',
       price: tiffinData.rate + 30,
       type: tiffinData.thaliType,
-      image: tiffinData.image,
+      image: tiffinData.image[1],
     },
     {
       id: '3',
@@ -42,7 +47,7 @@ const TiffinDetail = ({ route, navigation }) => {
       description: 'Dal, Rice, 4 Roti, 2 Sabji, Sweet, Pickle, Salad, Raita, Papad',
       price: tiffinData.rate + 50,
       type: tiffinData.thaliType,
-      image: tiffinData.image,
+      image: tiffinData.image[0],
     },
   ];
 
@@ -221,8 +226,24 @@ totalAmount: selectedDuration === 'weekly'
     return selected?.label || 'None';
   };
 
+  // Render image carousel
+  const renderImageItem = ({ item }) => (
+    <Image
+      source={item}
+      style={styles.carouselImage}
+      resizeMode="cover"
+      onError={(error) => {
+        console.log('Image load error:', error.nativeEvent.error);
+      }}
+    />
+  );
+
+
+
   return (
     <View style={styles.container}>
+{  console.log('details screen', tiffinData.image)}
+
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
@@ -241,7 +262,19 @@ totalAmount: selectedDuration === 'weekly'
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Tiffin Center Info */}
         <View style={styles.tiffinInfoCard}>
-          <Image source={tiffinData.image} style={styles.tiffinImage} />
+     <View style={styles.imageCarouselContainer}>
+            <FlatList
+              data={tiffinData.image || []}
+              horizontal
+              pagingEnabled
+              showsHorizontalScrollIndicator={false}
+              renderItem={renderImageItem}
+              keyExtractor={(_, index) => index.toString()}
+              style={styles.imageCarousel}
+            />
+          </View>
+
+
           <View style={styles.tiffinInfo}>
             <View>
               <Text style={styles.tiffinTitle}>{tiffinData.title}</Text>
@@ -522,11 +555,27 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     overflow: 'hidden',
   },
-  tiffinImage: {
-    width: '100%',
-    height: 200,
-    resizeMode: 'cover',
-  },
+  carouselContainer: {
+   width: 300,
+  height: 200,
+  borderRadius: 12,
+  marginRight: 10,
+
+  resizeMode:'cover'
+},
+carouselImage: {
+  width: deviceWidth,
+  height: 220,
+  resizeMode: 'cover', // or 'contain' if you want full image fit with borders
+  backgroundColor: '#f0f0f0',
+},
+
+
+tiffinImage: {
+  height: 220,
+  width: '100%',
+  resizeMode: 'cover',
+},
   tiffinInfo: {
     padding: 20,
     flexDirection:'row',
@@ -854,6 +903,13 @@ qtyValue: {
   fontWeight: 'bold',
   marginHorizontal: 20,
   color: '#333',
+},
+imageCarousel: {
+},
+imageCarouselContainer: {
+  height: 220,
+  backgroundColor: '#fff',
+  marginBottom: 10,
 },
 
   orderSummarySection: {

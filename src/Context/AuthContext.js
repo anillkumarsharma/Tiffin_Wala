@@ -1,6 +1,7 @@
 // src/Context/AuthContext.js
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import auth from '@react-native-firebase/auth';
+import { useNavigation } from '@react-navigation/native';
 
 const AuthContext = createContext();
 
@@ -40,14 +41,18 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const logout = async () => {
-    try {
-      await auth().signOut();
-      // The onAuthStateChanged listener will handle state updates
-      console.log('User logged out successfully');
-    } catch (error) {
-      console.error('Logout error:', error);
-      throw error;
-    }
+    // try {
+    //   await auth().signOut();
+    //   // The onAuthStateChanged listener will handle state updates
+    //   console.log('User logged out successfully');
+    // } catch (error) {
+    //   console.error('Logout error:', error);
+    //   throw error;
+    // }
+  setUser(null);
+  setIsAuthenticated(false);
+  navigation.navigate('MyOrders')
+
   };
 
   const value = {

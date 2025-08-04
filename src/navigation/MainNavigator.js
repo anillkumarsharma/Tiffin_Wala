@@ -18,8 +18,10 @@ const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 // Tab navigator with Home and Search tabs
-const TiffinTabs = () => (
-  <Tab.Navigator
+const TiffinTabs = () => {
+    const { isAuthenticated } = useAuth(); 
+
+  return(<Tab.Navigator
     screenOptions={({ route }) => ({
       tabBarStyle: {
         height: 70,
@@ -55,9 +57,11 @@ const TiffinTabs = () => (
   >
     <Tab.Screen name="Home" component={Home} />
     <Tab.Screen name='MyOrders' component={MyOrders} />
-    <Tab.Screen name="Profile" component={Profile} />
-  </Tab.Navigator>
-);
+<Tab.Screen name="Profile" component={Profile} 
+/>
+
+  </Tab.Navigator>)
+}
 
 
 // App Stack Navigator (for authenticated users)
