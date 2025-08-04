@@ -8,29 +8,74 @@ import {
   Image, 
   KeyboardAvoidingView, 
   Platform,
-  ScrollView 
+  ScrollView, 
+  Alert,
+  ActivityIndicator
 } from 'react-native'
 import React, { useState } from 'react'
 import { useAuth } from '../../Context/AuthContext';
+import auth from '@react-native-firebase/auth';
+
 
 const LoginScreen = ({ navigation, route }) => {
   const { setIsAuthenticated } = useAuth();
   const [phoneNumber, setPhoneNumber] = useState('');
+   const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
+  const handleLogin = async() => {
     // Validate phone number
-    if (phoneNumber.length < 10) {
-      alert('Please enter a valid phone number');
+   if (phoneNumber.length !== 10) {
+      Alert.alert('Invalid Number', 'Please enter a valid 10-digit phone number');
       return;
     }
+setLoading(true);
+    
+    try {
+      // Format phone number for Firebase (+91 for India)
+      const formattedPhone = `+91${phoneNumber}`;
+      console.log('formatted phone number', formattedPhone)
+      
+      // Send OTP using Firebase
+      // const confirmation = await auth().signInWithPhoneNumber(formattedPhone);
+      // console.log('confirmation', confirmation)
 
-    // Navigate to OTP screen first
-    navigation.navigate('OTPScreen', {
-      phoneNumber: phoneNumber,
-      redirectTo: route?.params?.redirectTo,
-      tiffinData: route?.params?.tiffinData
-    });
+       const confirmation = {
+      confirm: async (code) => {
+        if (code === '123456') {
+          // Simulate successful confirmation
+          return { user: { phoneNumber: `+91${phoneNumber}` } };
+        } else {
+          throw new Error('Invalid verification code');
+        }
+      }
+    };
+      
+      // Navigate to OTP screen with confirmation object
+      navigation.replace('OTPScreen', {
+        phoneNumber: phoneNumber,
+        confirmation: confirmation,
+        redirectTo: route?.params?.redirectTo,
+        tiffinData: route?.params?.tiffinData
+      });
+      
+    } catch (error) {
+      console.error('Firebase OTP Error:', error);
+      
+      // Handle different error types
+      if (error.code === 'auth/invalid-phone-number') {
+        Alert.alert('Invalid Number', 'Please enter a valid phone number');
+      } else if (error.code === 'auth/too-many-requests') {
+        Alert.alert('Too Many Attempts', 'Please try again later');
+      } else if (error.code === 'auth/quota-exceeded') {
+        Alert.alert('Service Unavailable', 'SMS quota exceeded. Please try again later');
+      } else {
+        Alert.alert('Error', 'Failed to send OTP. Please check your internet connection and try again.');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
+
 
   return (
     <KeyboardAvoidingView 
@@ -68,9 +113,18 @@ const LoginScreen = ({ navigation, route }) => {
             />
           </View>
 
-          <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-            <Text style={styles.loginButtonText}>Continue</Text>
-          </TouchableOpacity>
+         <TouchableOpacity 
+  style={[styles.loginButton, loading && { opacity: 0.6 }]} 
+  onPress={handleLogin}
+  disabled={loading}
+>
+  {loading ? (
+    <ActivityIndicator size="small" color="#fff" />
+  ) : (
+    <Text style={styles.loginButtonText}>Continue</Text>
+  )}
+</TouchableOpacity>
+
 
           <Text style={styles.otpText}>
             We'll send you an OTP to verify your number
