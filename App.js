@@ -3,6 +3,7 @@ import MainNavigator from './src/navigation/MainNavigator'
 import SplashScreen from 'react-native-splash-screen'
 import ErrorPage from './src/screens/ErrorPage/Errorpage';
 import NetInfo from '@react-native-community/netinfo';
+import { AuthProvider } from './src/Context/AuthContext';
 const App = () => {
  const [isConnected, setIsConnected] = useState(true);
 
@@ -31,7 +32,9 @@ const App = () => {
  
   
  return (
-   <MainNavigator/>
+  <AuthProvider>
+     <MainNavigator/>
+  </AuthProvider>
  )
 }
 

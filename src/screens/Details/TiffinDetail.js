@@ -4,8 +4,10 @@ import React, { useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
 import leftArrow from "../../../assets/left.png"
 import colors from '../../constants/colors';
+import { useNavigation } from '@react-navigation/native';
+import { useAuth } from '../../Context/AuthContext';
 
-const TiffinDetail = ({ route, navigation }) => {
+const TiffinDetail = ({ route }) => {
   const { tiffinData } = route.params;
   const [orderModalVisible, setOrderModalVisible] = useState(false);
   const [selectedTiffin, setSelectedTiffin] = useState(null);
@@ -13,6 +15,7 @@ const TiffinDetail = ({ route, navigation }) => {
   const [selectedMeals, setSelectedMeals] = useState([]);
   const [selectedDuration, setSelectedDuration] = useState('single');
   const [quantity, setQuantity] = useState(1);
+  const { isAuthenticated } = useAuth();
 
 
   // Sample menu items for the tiffin center
@@ -81,6 +84,10 @@ const TiffinDetail = ({ route, navigation }) => {
     },
   ];
 
+  const navigation = useNavigation();
+
+   
+
   const handleOrderPress = (item) => {
     setSelectedTiffin(item);
     setSelectedMeals([]);
@@ -94,6 +101,17 @@ const TiffinDetail = ({ route, navigation }) => {
       Alert.alert('Please select at least one meal time');
       return;
     }
+
+   if (!isAuthenticated) {
+  setOrderModalVisible(false);
+  Alert.alert('Login Required', 'Please login to place an order.');
+  navigation.navigate('Login', {
+    redirectTo: 'TiffinDetail',
+    tiffinData
+  });
+  return; // 🔴 Prevents further execution
+}
+
 
     try {
       // Create order object
