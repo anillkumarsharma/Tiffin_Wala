@@ -7,7 +7,7 @@ import colors from '../../constants/colors';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../../Context/AuthContext';
 
-const TiffinDetail = ({ route }) => {
+const TiffinDetail = ({ route, navigation }) => {
   const { tiffinData } = route.params;
   const [orderModalVisible, setOrderModalVisible] = useState(false);
   const [selectedTiffin, setSelectedTiffin] = useState(null);
@@ -84,7 +84,6 @@ const TiffinDetail = ({ route }) => {
     },
   ];
 
-  const navigation = useNavigation();
 
    
 

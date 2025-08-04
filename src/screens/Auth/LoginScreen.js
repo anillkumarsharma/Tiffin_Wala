@@ -8,10 +8,14 @@ import {
   Image, 
   KeyboardAvoidingView, 
   Platform,
-  ScrollView 
+  ScrollView, 
+  Alert,
+  ActivityIndicator
 } from 'react-native'
 import React, { useState } from 'react'
 import { useAuth } from '../../Context/AuthContext';
+import auth from '@react-native-firebase/auth';
+
 
 const LoginScreen = ({ navigation, route }) => {
   const { setIsAuthenticated } = useAuth();
@@ -29,9 +33,22 @@ setLoading(true);
     try {
       // Format phone number for Firebase (+91 for India)
       const formattedPhone = `+91${phoneNumber}`;
+      console.log('formatted phone number', formattedPhone)
       
       // Send OTP using Firebase
-      const confirmation = await auth().signInWithPhoneNumber(formattedPhone);
+      // const confirmation = await auth().signInWithPhoneNumber(formattedPhone);
+      // console.log('confirmation', confirmation)
+
+       const confirmation = {
+      confirm: async (code) => {
+        if (code === '123456') {
+          // Simulate successful confirmation
+          return { user: { phoneNumber: `+91${phoneNumber}` } };
+        } else {
+          throw new Error('Invalid verification code');
+        }
+      }
+    };
       
       // Navigate to OTP screen with confirmation object
       navigation.replace('OTPScreen', {
@@ -96,9 +113,18 @@ setLoading(true);
             />
           </View>
 
-          <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-            <Text style={styles.loginButtonText}>Continue</Text>
-          </TouchableOpacity>
+         <TouchableOpacity 
+  style={[styles.loginButton, loading && { opacity: 0.6 }]} 
+  onPress={handleLogin}
+  disabled={loading}
+>
+  {loading ? (
+    <ActivityIndicator size="small" color="#fff" />
+  ) : (
+    <Text style={styles.loginButtonText}>Continue</Text>
+  )}
+</TouchableOpacity>
+
 
           <Text style={styles.otpText}>
             We'll send you an OTP to verify your number

@@ -48,9 +48,9 @@ const OTPScreen = ({ navigation, route }) => {
     }
 
     // Auto-verify when all 6 digits are entered
-    if (newOtp.every(digit => digit !== '') && newOtp.join('').length === 6) {
-      handleVerifyOtp(newOtp.join(''));
-    }
+    // if (newOtp.every(digit => digit !== '') && newOtp.join('').length === 6) {
+    //   handleVerifyOtp(newOtp.join(''));
+    // }
   };
 
   const handleKeyPress = (e, index) => {
@@ -80,47 +80,42 @@ const OTPScreen = ({ navigation, route }) => {
         // Set user as authenticated in your app context
         setIsAuthenticated(true);
 
-        // Reset navigation stack and navigate to target screen
         if (redirectTo) {
-          navigation.reset({
-            index: 1,
-            routes: [
-              { name: 'MyOrders' },
-              { name: redirectTo, params: { tiffinData } }
-            ],
-          });
-        } else {
-          navigation.reset({
-            index: 0,
-            routes: [{ name: 'MyOrders' }],
-          });
+  navigation.replace(redirectTo, { tiffinData });
+} else {
+  navigation.replace('MyOrders');
+}
+
         }
-      }
-
-    } catch (error) {
-      console.error('Firebase OTP Verification Error:', error);
       
-      // Handle different Firebase error types
-      if (error.code === 'auth/invalid-verification-code') {
-        Alert.alert('Invalid OTP', 'The OTP you entered is incorrect. Please try again.');
-      } else if (error.code === 'auth/code-expired') {
-        Alert.alert('OTP Expired', 'The OTP has expired. Please request a new one.');
-      } else if (error.code === 'auth/too-many-requests') {
-        Alert.alert('Too Many Attempts', 'Too many incorrect attempts. Please try again later.');
-      } else {
-        Alert.alert('Verification Failed', 'Unable to verify OTP. Please try again.');
-      }
-      
-      // Clear OTP inputs on error
-      setOtp(['', '', '', '', '', '']);
-      if (otpRefs.current[0]) {
-        otpRefs.current[0].focus();
-      }
-    } finally {
-      setIsVerifying(false);
-    }
-  };
 
+    }catch (error) {
+  console.error('Firebase OTP Verification Error:', error);
+  console.log('Error code:', error.code);
+  console.log('Error message:', error.message);
+setIsVerifying(false)
+  const message = error?.message?.toLowerCase() || '';
+
+  if (
+    message.includes('invalid verification code') ||
+    message.includes('invalid code')
+  ) {
+    Alert.alert('Invalid OTP', 'The OTP you entered is incorrect. Please try again.');
+  } else if (message.includes('code expired')) {
+    Alert.alert('OTP Expired', 'The OTP has expired. Please request a new one.');
+  } else if (message.includes('too many requests')) {
+    Alert.alert('Too Many Attempts', 'Too many incorrect attempts. Please try again later.');
+  } else {
+    Alert.alert('Verification Failed', message || 'Unable to verify OTP. Please try again.');
+  }
+
+  // Reset OTP input
+  setOtp(['', '', '', '', '', '']);
+  setTimeout(() => {
+    if (otpRefs.current[0]) otpRefs.current[0].focus();
+  }, 100);
+}
+  }
   const handleResendOtp = async () => {
     try {
       setTimer(30);

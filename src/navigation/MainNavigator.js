@@ -12,6 +12,7 @@ import LoginScreen from '../screens/Auth/LoginScreen';
 import Profile from '../screens/Profile/Profile';
 import OTPScreen from '../screens/Auth/OTPSceen';
 import { useAuth } from '../Context/AuthContext';
+import AuthStack from './AuthStack';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -58,13 +59,6 @@ const TiffinTabs = () => (
   </Tab.Navigator>
 );
 
-// Auth Stack Navigator (for login/OTP screens)
-const AuthStack = () => (
-  <Stack.Navigator screenOptions={{ headerShown: false }}>
-    <Stack.Screen name='Login' component={LoginScreen} />
-    <Stack.Screen name='OTPScreen' component={OTPScreen} />
-  </Stack.Navigator>
-);
 
 // App Stack Navigator (for authenticated users)
 const AppStack = () => (
@@ -74,6 +68,9 @@ const AppStack = () => (
     <Stack.Screen name='MyOrders' component={MyOrders} />
     <Stack.Screen name='Profile' component={Profile} />
     <Stack.Screen name='Splash' component={SplashScreen} />
+     {/* 🔥 Add login flow here as fallback */}
+    <Stack.Screen name='Login' component={LoginScreen} />
+    <Stack.Screen name='OTPScreen' component={OTPScreen} />
   </Stack.Navigator>
 );
 
@@ -103,16 +100,8 @@ const MainNavigator = () => {
 
   return (
     <NavigationContainer>
-      {loading ? (
-        // Show loading screen while checking auth state
-        <LoadingScreen />
-      ) : isAuthenticated ? (
-        // User is authenticated - show main app
-        <AppStack />
-      ) : (
-        // User is not authenticated - show auth screens
-        <AuthStack />
-      )}
+      {loading ? <LoadingScreen /> : <AppStack />}
+
     </NavigationContainer>
   );
 };
