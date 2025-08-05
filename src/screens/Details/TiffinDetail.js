@@ -372,135 +372,141 @@ totalAmount: selectedDuration === 'weekly'
         </View>
       </ScrollView>
 
-      {/* Order Confirmation Modal */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={orderModalVisible}
-        onRequestClose={() => setOrderModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Order Your Tiffin</Text>
-            
-            {/* Meal Time Selection */}
-            <View style={styles.selectionSection}>
-              <Text style={styles.selectionTitle}>Select Meal Times</Text>
-              <Text style={styles.selectionSubtitle}>You can select multiple options</Text>
-              
-              <View style={styles.mealOptionsContainer}>
-                {mealOptions?.map((meal) => (
-                  <TouchableOpacity
-                    key={meal.id}
-                    style={[
-                      styles.mealOption,
-                      selectedMeals.includes(meal.id) && styles.selectedMealOption
-                    ]}
-                    onPress={() => toggleMealSelection(meal.id)}
-                  >
-                    <Text style={[
-                      styles.mealOptionText,
-                      selectedMeals.includes(meal.id) && styles.selectedMealOptionText
-                    ]}>
-                      {meal.label}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
+   
 
-            {/* Duration Selection */}
-            <View style={styles.selectionSection}>
-              <Text style={styles.selectionTitle}>Select Duration</Text>
-              
-              <View style={styles.durationOptionsContainer}>
-                {durationOptions.map((duration) => (
-                  <TouchableOpacity
-                    key={duration.id}
-                    style={[
-                      styles.durationOption,
-                      selectedDuration === duration.id && styles.selectedDurationOption
-                    ]}
-                    onPress={() => setSelectedDuration(duration.id)}
-                  >
-                    <Text style={[
-                      styles.durationOptionText,
-                      selectedDuration === duration.id && styles.selectedDurationOptionText
-                    ]}>
-                      {duration.label}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-<View style={styles.quantitySection}>
-  <Text style={styles.selectionTitle}>Quantity</Text>
-  <View style={styles.quantityControls}>
+      {orderModalVisible && (
+  <View style={styles.sheetOverlay}>
+    {/* ❌ Close Button */}
     <TouchableOpacity 
-      style={styles.qtyButton} 
-      onPress={() => setQuantity(prev => Math.max(1, prev - 1))}
+      style={styles.closeButton}
+      onPress={() => setOrderModalVisible(false)}
     >
-      <Text style={styles.qtyButtonText}>−</Text>
+      <Text style={styles.closeButtonText}>✕</Text>
     </TouchableOpacity>
 
-    <Text style={styles.qtyValue}>{quantity}</Text>
+    {/* 🔽 Bottom Sheet */}
+    <View style={styles.bottomSheet}>
+      <Text style={styles.modalTitle}>Order Your Tiffin</Text>
 
-    <TouchableOpacity 
-      style={styles.qtyButton} 
-      onPress={() => setQuantity(prev => prev + 1)}
-    >
-      <Text style={styles.qtyButtonText}>+</Text>
-    </TouchableOpacity>
-  </View>
-</View>
-
-            {/* Order Summary */}
-            <View style={styles.orderSummarySection}>
-              <Text style={styles.summaryTitle}>Order Summary</Text>
-              <Text style={styles.summaryItem}>
-                <Text style={styles.summaryLabel}>Tiffin: </Text>
-                {selectedTiffin?.name || 'None selected'}
+      {/* Meal Time Selection */}
+      <View style={styles.selectionSection}>
+        <Text style={styles.selectionTitle}>Select Meal Times</Text>
+        <Text style={styles.selectionSubtitle}>You can select multiple options</Text>
+        <View style={styles.mealOptionsContainer}>
+          {mealOptions?.map((meal) => (
+            <TouchableOpacity
+              key={meal.id}
+              style={[
+                styles.mealOption,
+                selectedMeals.includes(meal.id) && styles.selectedMealOption
+              ]}
+              onPress={() => toggleMealSelection(meal.id)}
+            >
+              <Text style={[
+                styles.mealOptionText,
+                selectedMeals.includes(meal.id) && styles.selectedMealOptionText
+              ]}>
+                {meal.label}
               </Text>
-              <Text style={styles.summaryItem}>
-                <Text style={styles.summaryLabel}>Meals: </Text>
-                {getMealSummary()}
-              </Text>
-              <Text style={styles.summaryItem}>
-                <Text style={styles.summaryLabel}>Duration: </Text>
-                {getDurationLabel()}
-              </Text>
-              {selectedTiffin && selectedMeals.length > 0 && (
-                <Text style={styles.summaryItem}>
-                  <Text style={styles.summaryLabel}>Total: </Text>
-                  ₹{selectedDuration === 'weekly' 
-  ? selectedTiffin.price * 7 * selectedMeals.length * quantity
-  : selectedTiffin.price * selectedMeals.length * quantity}
-
-                </Text>
-              )}
-            </View>
-
-            <View style={styles.modalButtons}>
-              <TouchableOpacity 
-                style={styles.cancelButton}
-                onPress={() => setOrderModalVisible(false)}
-              >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={[
-                  styles.confirmButton,
-                  selectedMeals.length === 0 && styles.disabledButton
-                ]}
-                onPress={confirmOrder}
-                disabled={selectedMeals.length === 0}
-              >
-                <Text style={styles.confirmButtonText}>Confirm Order</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
+            </TouchableOpacity>
+          ))}
         </View>
-      </Modal>
+      </View>
+
+      {/* Duration */}
+      <View style={styles.selectionSection}>
+        <Text style={styles.selectionTitle}>Select Duration</Text>
+        <View style={styles.durationOptionsContainer}>
+          {durationOptions.map((duration) => (
+            <TouchableOpacity
+              key={duration.id}
+              style={[
+                styles.durationOption,
+                selectedDuration === duration.id && styles.selectedDurationOption
+              ]}
+              onPress={() => setSelectedDuration(duration.id)}
+            >
+              <Text style={[
+                styles.durationOptionText,
+                selectedDuration === duration.id && styles.selectedDurationOptionText
+              ]}>
+                {duration.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
+
+      {/* Quantity */}
+      <View style={styles.quantitySection}>
+        <Text style={styles.selectionTitle}>Quantity</Text>
+        <View style={styles.quantityControls}>
+          <TouchableOpacity 
+            style={styles.qtyButton} 
+            onPress={() => setQuantity(prev => Math.max(1, prev - 1))}
+          >
+            <Text style={styles.qtyButtonText}>−</Text>
+          </TouchableOpacity>
+
+          <Text style={styles.qtyValue}>{quantity}</Text>
+
+          <TouchableOpacity 
+            style={styles.qtyButton} 
+            onPress={() => setQuantity(prev => prev + 1)}
+          >
+            <Text style={styles.qtyButtonText}>+</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* Order Summary */}
+      <View style={styles.orderSummarySection}>
+        <Text style={styles.summaryTitle}>Order Summary</Text>
+        <Text style={styles.summaryItem}>
+          <Text style={styles.summaryLabel}>Tiffin: </Text>
+          {selectedTiffin?.name || 'None selected'}
+        </Text>
+        <Text style={styles.summaryItem}>
+          <Text style={styles.summaryLabel}>Meals: </Text>
+          {getMealSummary()}
+        </Text>
+        <Text style={styles.summaryItem}>
+          <Text style={styles.summaryLabel}>Duration: </Text>
+          {getDurationLabel()}
+        </Text>
+        {selectedTiffin && selectedMeals.length > 0 && (
+          <Text style={styles.summaryItem}>
+            <Text style={styles.summaryLabel}>Total: </Text>
+            ₹{selectedDuration === 'weekly' 
+              ? selectedTiffin.price * 7 * selectedMeals.length * quantity
+              : selectedTiffin.price * selectedMeals.length * quantity}
+          </Text>
+        )}
+      </View>
+
+      {/* Buttons */}
+      <View style={styles.modalButtons}>
+        <TouchableOpacity 
+          style={styles.cancelButton}
+          onPress={() => setOrderModalVisible(false)}
+        >
+          <Text style={styles.cancelButtonText}>Cancel</Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={[
+            styles.confirmButton,
+            selectedMeals.length === 0 && styles.disabledButton
+          ]}
+          onPress={confirmOrder}
+          disabled={selectedMeals.length === 0}
+        >
+          <Text style={styles.confirmButtonText}>Confirm Order</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  </View>
+)}
+
     </View>
   );
 };
@@ -684,6 +690,7 @@ tiffinImage: {
     width: 100,
     height: 100,
     resizeMode: 'cover',
+    alignSelf:'stretch'
   },
   menuItemInfo: {
     flex: 1,
@@ -966,6 +973,45 @@ imageCarouselContainer: {
     fontSize: 16,
     textAlign: 'center',
   },
+  sheetOverlay: {
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  backgroundColor: 'rgba(0,0,0,0.5)',
+  justifyContent: 'flex-end',
+},
+
+bottomSheet: {
+  backgroundColor: '#fff',
+  borderTopLeftRadius: 20,
+  borderTopRightRadius: 20,
+  paddingHorizontal: 20,
+  paddingTop: 20,
+  paddingBottom: 30,
+  maxHeight: '90%',
+},
+
+closeButton: {
+  position: 'absolute',
+  top: 120,
+  right: 20,
+  zIndex: 10,
+  backgroundColor: colors.grey,
+  width: 32,
+  height: 32,
+  borderRadius: 16,
+  justifyContent: 'center',
+  alignItems: 'center',
+  elevation: 4,
+},
+
+closeButtonText: {
+  fontSize: 18,
+  fontWeight: 'bold',
+},
+
 });
 
 export default TiffinDetail;

@@ -2,6 +2,7 @@ import { View, Text, ScrollView, TextInput, StyleSheet, TouchableOpacity, Dimens
 import React, { useState, useRef } from 'react';
 import TiffinCard from '../../components/Card';
 import colors from '../../constants/colors';
+import AdBanner from '../../components/AdBanner';
 
 const Home = ({navigation}) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -147,6 +148,29 @@ const cardPositions = useRef({}); // track Y position of each card
     },
   ];
 
+  const handleAdPress = (ad) => {
+    
+    // Example actions based on ad type:
+    switch (ad.type) {
+      case 'festival':
+        // Navigate to festival offers page
+        // navigation.navigate('FestivalOffers', { ad });
+        break;
+      case 'discount':
+        // Navigate to specific tiffin center with discount applied
+        // navigation.navigate('TiffinDetails', { centerId: ad.tiffinCenterId, discount: ad.discount });
+        break;
+      case 'new_launch':
+        // Navigate to new tiffin center
+        // navigation.navigate('NewLaunches');
+        break;
+      default:
+        // Default action
+        break;
+    }
+  };
+
+
   // Filter function for search
   const filteredTiffinData = tiffinData.filter((item) => {
     const query = searchQuery.toLowerCase().trim();
@@ -194,10 +218,7 @@ const cardPositions = useRef({}); // track Y position of each card
   return (
     <View style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Tiffin Wala</Text>
-        <Text style={styles.headerSubtitle}>Find your perfect Tiffin</Text>
-      </View>
+      <AdBanner onAdPress={handleAdPress} />
 
       {/* Search Bar */}
       <View style={styles.searchContainer}>
@@ -275,24 +296,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f8f9fa',
   },
-  header: {
-    backgroundColor: '#fff',
-    paddingTop: 40,
-    paddingBottom: 30,
-    paddingHorizontal: 20,
-  },
-  headerTitle: {
-    color:colors.Primary,
-    fontSize: 28,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  headerSubtitle: {
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
-    marginTop: 5,
-  },
   searchContainer: {
     backgroundColor: '#fff',
     paddingHorizontal: 16,
@@ -301,10 +304,12 @@ const styles = StyleSheet.create({
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#FFFFFF',
     borderRadius: 25,
     paddingHorizontal: 15,
-    paddingVertical: 10,
+    paddingVertical: 16,
+    borderColor: colors.grey,
+    borderWidth: 1, 
   },
   searchIcon: {
     fontSize: 16,

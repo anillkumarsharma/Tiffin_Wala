@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -27,6 +27,11 @@ const Profile = () => {
   const [phone, setPhone] = useState('')
   const [isEditing, setIsEditing] = useState(false);
 
+  // Create refs for each input field
+  const nameInputRef = useRef(null);
+  const emailInputRef = useRef(null);
+  const addressInputRef = useRef(null);
+
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -37,8 +42,8 @@ const Profile = () => {
         const storedAddress = await AsyncStorage.getItem('user_address');
         const phoneNumber = await AsyncStorage.getItem('user_phoneNumber');
         const storedImage = await AsyncStorage.getItem('user_profileImage');
-if (storedImage) setProfileImage(storedImage);
-
+        
+        if (storedImage) setProfileImage(storedImage);
         if (storedName) setName(storedName);
         if (storedEmail) setEmail(storedEmail);
         if (storedAddress) setAddress(storedAddress);
@@ -55,7 +60,7 @@ if (storedImage) setProfileImage(storedImage);
       await AsyncStorage.setItem('user_name', name);
       await AsyncStorage.setItem('user_email', email);
       await AsyncStorage.setItem('user_address', address);
-      await AsyncStorage.setItem('user_profileImage', profileImage )
+      await AsyncStorage.setItem('user_profileImage', profileImage || '');
       setIsEditing(false);
       Alert.alert('Success', 'Profile saved successfully!');
     } catch (e) {
@@ -63,38 +68,38 @@ if (storedImage) setProfileImage(storedImage);
       Alert.alert('Error', 'Failed to save profile. Try again.');
     }
   };
-const pickImage = () => {
-  Alert.alert('Change Profile Picture', 'Choose an option', [
-    { text: 'Cancel', style: 'cancel' },
-    { text: 'Camera', onPress: openCamera },
-    { text: 'Gallery', onPress: openGallery },
-  ]);
-};
 
-const openCamera = async () => {
-  const result = await launchCamera({ mediaType: 'photo', quality: 1 });
+  const pickImage = () => {
+    Alert.alert('Change Profile Picture', 'Choose an option', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Camera', onPress: openCamera },
+      { text: 'Gallery', onPress: openGallery },
+    ]);
+  };
 
-  if (!result.didCancel && !result.errorCode) {
-    const uri = result.assets?.[0]?.uri;
-    if (uri) {
-      setProfileImage(uri);
-      await AsyncStorage.setItem('user_profileImage', uri);
+  const openCamera = async () => {
+    const result = await launchCamera({ mediaType: 'photo', quality: 1 });
+
+    if (!result.didCancel && !result.errorCode) {
+      const uri = result.assets?.[0]?.uri;
+      if (uri) {
+        setProfileImage(uri);
+        await AsyncStorage.setItem('user_profileImage', uri);
+      }
     }
-  }
-};
+  };
 
-const openGallery = async () => {
-  const result = await launchImageLibrary({ mediaType: 'photo', quality: 1 });
+  const openGallery = async () => {
+    const result = await launchImageLibrary({ mediaType: 'photo', quality: 1 });
 
-  if (!result.didCancel && !result.errorCode) {
-    const uri = result.assets?.[0]?.uri;
-    if (uri) {
-      setProfileImage(uri);
-      await AsyncStorage.setItem('user_profileImage', uri);
+    if (!result.didCancel && !result.errorCode) {
+      const uri = result.assets?.[0]?.uri;
+      if (uri) {
+        setProfileImage(uri);
+        await AsyncStorage.setItem('user_profileImage', uri);
+      }
     }
-  }
-};
-
+  };
 
   const handleLogout = () => {
     Alert.alert('Logout', 'Are you sure you want to logout?', [
@@ -126,45 +131,82 @@ const openGallery = async () => {
     return phoneNumber;
   };
 
+  // Handle pencil icon press for specific fields
+  const handlePencilPress = (fieldRef) => {
+    setIsEditing(true);
+    // Use setTimeout to ensure the state update is processed first
+    setTimeout(() => {
+      fieldRef.current?.focus();
+    }, 100);
+  };
+
+  // Handle main edit button press
+  const handleEditButtonPress = () => {
+    if (isEditing) {
+      saveProfile();
+    } else {
+      setIsEditing(true);
+      // Focus on name field when starting to edit
+      setTimeout(() => {
+        nameInputRef.current?.focus();
+      }, 100);
+    }
+  };
+
+  const fieldData = [
+    { label: 'Name', value: name, setValue: setName, ref: nameInputRef },
+    { label: 'Email', value: email, setValue: setEmail, ref: emailInputRef },
+    { label: 'Address', value: address, setValue: setAddress, ref: addressInputRef, multiline: true }
+  ];
+
   return (
     <View style={styles.root}>
       <ScrollView contentContainerStyle={styles.container}>
-       <TouchableOpacity style={styles.imageContainer} onPress={pickImage}>
-  <View style={styles.imageWrapper}>
-    <Image
-      source={profileImage ? { uri: profileImage } : require('../../../assets/Ellipse.png')}
-      style={styles.profileImage}
-    />
-    <Image source={cameraIcon} style={styles.cameraIcon} />
-  </View>
-  <Text style={styles.editText}>Tap to change photo</Text>
-</TouchableOpacity>
-
+        <TouchableOpacity style={styles.imageContainer} onPress={pickImage}>
+          <View style={styles.imageWrapper}>
+            <Image
+              source={profileImage ? { uri: profileImage } : require('../../../assets/Ellipse.png')}
+              style={styles.profileImage}
+            />
+            <Image source={cameraIcon} style={styles.cameraIcon} />
+          </View>
+        </TouchableOpacity>
 
         <View style={styles.infoContainer}>
-          {[
-            { label: 'Name', value: name, setValue: setName },
-            { label: 'Email', value: email, setValue: setEmail },
-            { label: 'Address', value: address, setValue: setAddress, multiline: true }
-          ].map((item, index) => (
+          {fieldData.map((item, index) => (
             <View key={index}>
               <View style={styles.infoRow}>
                 <Text style={styles.label}>{item.label}</Text>
                 <View style={styles.editableRow}>
                   <TextInput
-                    style={styles.input}
+                    ref={item.ref}
+                    style={[
+                      styles.input,
+                      isEditing && styles.inputEditing
+                    ]}
                     value={item.value}
                     onChangeText={item.setValue}
                     editable={isEditing}
                     placeholder={`Enter your ${item.label.toLowerCase()}`}
                     placeholderTextColor={colors.grey}
                     multiline={item.multiline || false}
+                    textAlignVertical={item.multiline ? 'top' : 'center'}
                   />
                   <TouchableOpacity
-                    onPress={() => setIsEditing(true)}
+                    onPress={() => handlePencilPress(item.ref)}
                     disabled={isEditing}
+                    style={[
+                      styles.pencilButton,
+                      isEditing && styles.pencilButtonDisabled
+                    ]}
                   >
-                    <Image source={pencilIcon}   style={{ width: 16, height: 16 }} />
+                    <Image 
+                      source={pencilIcon}   
+                      style={[
+                        { width: 16, height: 16 },
+                        isEditing && styles.pencilIconDisabled
+                      ]} 
+                    />
                   </TouchableOpacity>
                 </View>
               </View>
@@ -181,7 +223,7 @@ const openGallery = async () => {
         <View style={styles.actionContainer}>
           <TouchableOpacity
             style={styles.editButton}
-            onPress={isEditing ? saveProfile : () => setIsEditing(true)}
+            onPress={handleEditButtonPress}
           >
             <Text style={styles.editButtonText}>
               {isEditing ? 'Save Profile' : 'Edit Profile'}
@@ -303,7 +345,7 @@ cameraIcon: {
   divider: {
     height: 1,
     backgroundColor: '#f0f0f0',
-    marginVertical: 8,
+    marginVertical: 6,
   },
   actionContainer: {
     width: '100%',
@@ -356,5 +398,19 @@ cameraIcon: {
     fontSize: 12,
     color: '#999',
     marginBottom: 4,
+  },
+   inputEditing: {
+    borderBottomWidth: 1,
+    borderBottomColor: colors.primary || '#007AFF',
+  },
+  pencilButton: {
+    padding: 4,
+    opacity: 1,
+  },
+  pencilButtonDisabled: {
+    opacity: 0.3,
+  },
+  pencilIconDisabled: {
+    opacity: 0.3,
   },
 });
