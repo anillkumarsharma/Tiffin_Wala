@@ -3,6 +3,7 @@ import { FaMapMarkerAlt } from 'react-icons/fa';
 import { View, Text, Image, StyleSheet, TouchableOpacity, Dimensions, FlatList, Linking } from 'react-native';
 import { location } from '../constants/icons';
 import colors from '../constants/colors';
+import { fonts } from '../constants/fonts';
 
 
 const screenWidth = Dimensions.get('window').width;
@@ -20,7 +21,7 @@ const TiffinCard = ({
   isVisible = true ,// New prop to control auto-scroll
  latitude,
 longitude,
-
+  distance
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const sliderRef = useRef(null);
@@ -173,8 +174,10 @@ const openMap = () => {
       </View>
 
       <View style={styles.infoContainer}>
-        <Text style={styles.title}>{title}</Text>
-
+  <View style={{flexDirection:'row', alignItems:'center', justifyContent:'space-between',marginBottom:8}}>
+          <Text style={styles.title}>{title}</Text>
+          <Text style={styles.distance}>{`${distance} km`}</Text>
+  </View>
         <View style={styles.row}>
           <Text style={styles.rating}>⭐ {rating}</Text>
           <Text style={styles.dotSeparator}>•</Text>
@@ -252,7 +255,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: '#333',
-    marginBottom: 8,
+  },
+  distance: {
+    fontSize:16,
+    fontFamily:fonts.interMed,
+    color: '#333'
   },
   row: {
     flexDirection: 'row',

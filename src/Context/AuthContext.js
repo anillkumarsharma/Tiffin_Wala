@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import auth from '@react-native-firebase/auth';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const AuthContext = createContext();
 
@@ -17,6 +18,7 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+
 
   useEffect(() => {
     // Listen for authentication state changes
@@ -51,7 +53,8 @@ export const AuthProvider = ({ children }) => {
     // }
   setUser(null);
   setIsAuthenticated(false);
-  navigation.navigate('MyOrders')
+   await AsyncStorage.clear();
+  
 
   };
 

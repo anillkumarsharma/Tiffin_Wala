@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
 import leftArrow from "../../../assets/left.png"
 import colors from '../../constants/colors';
-import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../../Context/AuthContext';
 const { width: deviceWidth } = Dimensions.get('window');
 

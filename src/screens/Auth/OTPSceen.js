@@ -1,27 +1,28 @@
-import { 
-  StyleSheet, 
-  Text, 
-  View, 
-  TextInput, 
-  TouchableOpacity, 
-  KeyboardAvoidingView, 
+import {
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  TouchableOpacity,
+  KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert
-} from 'react-native'
-import React, { useState, useRef, useEffect } from 'react'
-import { useAuth } from '../../Context/AuthContext';
+  Alert,
+} from 'react-native';
+import React, {useState, useRef, useEffect} from 'react';
+import {useAuth} from '../../Context/AuthContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const OTPScreen = ({ navigation, route }) => {
-  const { setIsAuthenticated } = useAuth();
-  const { phoneNumber, confirmation, redirectTo, tiffinData } = route.params;
-  
+const OTPScreen = ({navigation, route}) => {
+  const {setIsAuthenticated} = useAuth();
+  const {phoneNumber, confirmation, redirectTo, tiffinData} = route.params;
+
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [timer, setTimer] = useState(30);
   const [canResend, setCanResend] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
-   const [currentConfirmation, setCurrentConfirmation] = useState(confirmation);
-  
+  const [currentConfirmation, setCurrentConfirmation] = useState(confirmation);
+
   const otpRefs = useRef([]);
 
   // Timer countdown
@@ -61,7 +62,7 @@ const OTPScreen = ({ navigation, route }) => {
 
   const handleVerifyOtp = async (otpCode = null) => {
     const otpToVerify = otpCode || otp.join('');
-    
+
     if (otpToVerify.length !== 6) {
       Alert.alert('Invalid OTP', 'Please enter all 6 digits');
       return;
@@ -72,93 +73,106 @@ const OTPScreen = ({ navigation, route }) => {
     try {
       // Verify OTP with Firebase
       const result = await currentConfirmation.confirm(otpToVerify);
-      
+
       if (result.user) {
         // User authenticated successfully with Firebase
         console.log('Firebase Auth Success:', result.user.uid);
-        
+        await AsyncStorage.setItem('user_phoneNumber', phoneNumber);
         // Set user as authenticated in your app context
         setIsAuthenticated(true);
 
         if (redirectTo) {
-  navigation.replace(redirectTo, { tiffinData });
-} else {
-  navigation.replace('MyOrders');
-}
-
+          navigation.replace(redirectTo, {tiffinData});
+        } else {
+          navigation.replace('MyOrders');
         }
-      
+      }
+    } catch (error) {
+      console.error('Firebase OTP Verification Error:', error);
+      console.log('Error code:', error.code);
+      console.log('Error message:', error.message);
+      setIsVerifying(false);
+      const message = error?.message?.toLowerCase() || '';
 
-    }catch (error) {
-  console.error('Firebase OTP Verification Error:', error);
-  console.log('Error code:', error.code);
-  console.log('Error message:', error.message);
-setIsVerifying(false)
-  const message = error?.message?.toLowerCase() || '';
+      if (
+        message.includes('invalid verification code') ||
+        message.includes('invalid code')
+      ) {
+        Alert.alert(
+          'Invalid OTP',
+          'The OTP you entered is incorrect. Please try again.',
+        );
+      } else if (message.includes('code expired')) {
+        Alert.alert(
+          'OTP Expired',
+          'The OTP has expired. Please request a new one.',
+        );
+      } else if (message.includes('too many requests')) {
+        Alert.alert(
+          'Too Many Attempts',
+          'Too many incorrect attempts. Please try again later.',
+        );
+      } else {
+        Alert.alert(
+          'Verification Failed',
+          message || 'Unable to verify OTP. Please try again.',
+        );
+      }
 
-  if (
-    message.includes('invalid verification code') ||
-    message.includes('invalid code')
-  ) {
-    Alert.alert('Invalid OTP', 'The OTP you entered is incorrect. Please try again.');
-  } else if (message.includes('code expired')) {
-    Alert.alert('OTP Expired', 'The OTP has expired. Please request a new one.');
-  } else if (message.includes('too many requests')) {
-    Alert.alert('Too Many Attempts', 'Too many incorrect attempts. Please try again later.');
-  } else {
-    Alert.alert('Verification Failed', message || 'Unable to verify OTP. Please try again.');
-  }
+      // Reset OTP input
+      setOtp(['', '', '', '', '', '']);
+      setTimeout(() => {
+        if (otpRefs.current[0]) otpRefs.current[0].focus();
+      }, 100);
+    }
+  };
 
-  // Reset OTP input
-  setOtp(['', '', '', '', '', '']);
-  setTimeout(() => {
-    if (otpRefs.current[0]) otpRefs.current[0].focus();
-  }, 100);
-}
-  }
   const handleResendOtp = async () => {
     try {
       setTimer(30);
       setCanResend(false);
       setOtp(['', '', '', '', '', '']);
-      
+
       // Resend OTP using Firebase
       const formattedPhone = `+91${phoneNumber}`;
-      const newConfirmation = await auth().signInWithPhoneNumber(formattedPhone);
-      
+      const newConfirmation = await auth().signInWithPhoneNumber(
+        formattedPhone,
+      );
+
       // Update confirmation reference
       setCurrentConfirmation(newConfirmation);
-      
+
       if (otpRefs.current[0]) {
         otpRefs.current[0].focus();
       }
-      
+
       Alert.alert('OTP Sent', 'A new OTP has been sent to your phone number');
-      
     } catch (error) {
       console.error('Resend OTP Error:', error);
-      
+
       if (error.code === 'auth/too-many-requests') {
-        Alert.alert('Too Many Requests', 'Please wait before requesting another OTP');
+        Alert.alert(
+          'Too Many Requests',
+          'Please wait before requesting another OTP',
+        );
       } else {
         Alert.alert('Error', 'Failed to resend OTP. Please try again.');
       }
-      
+
       // Reset timer state on error
       setCanResend(true);
       setTimer(0);
     }
   };
 
-  const formatPhoneNumber = (phone) => {
+  const formatPhoneNumber = phone => {
     return phone.replace(/(\d{5})(\d{5})/, '$1 $2');
   };
 
   return (
-    <KeyboardAvoidingView 
-      style={styles.container} 
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         {/* Header Section */}
         <View style={styles.headerSection}>
@@ -170,26 +184,25 @@ setIsVerifying(false)
           <Text style={styles.title}>Verify Your Number</Text>
           <Text style={styles.subtitle}>
             We've sent a 6-digit code to{'\n'}
-            <Text style={styles.phoneNumber}>+91 {formatPhoneNumber(phoneNumber)}</Text>
+            <Text style={styles.phoneNumber}>
+              +91 {formatPhoneNumber(phoneNumber)}
+            </Text>
           </Text>
         </View>
 
         {/* OTP Input Section */}
         <View style={styles.otpSection}>
           <Text style={styles.otpLabel}>Enter OTP</Text>
-          
+
           <View style={styles.otpContainer}>
             {otp.map((digit, index) => (
               <TextInput
                 key={index}
-                ref={ref => otpRefs.current[index] = ref}
-                style={[
-                  styles.otpInput,
-                  digit ? styles.otpInputFilled : {},
-                ]}
+                ref={ref => (otpRefs.current[index] = ref)}
+                style={[styles.otpInput, digit ? styles.otpInputFilled : {}]}
                 value={digit}
-                onChangeText={(text) => handleOtpChange(text, index)}
-                onKeyPress={(e) => handleKeyPress(e, index)}
+                onChangeText={text => handleOtpChange(text, index)}
+                onKeyPress={e => handleKeyPress(e, index)}
                 keyboardType="numeric"
                 maxLength={1}
                 textAlign="center"
@@ -198,18 +211,20 @@ setIsVerifying(false)
             ))}
           </View>
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[
               styles.verifyButton,
-              (otp.join('').length !== 6 || isVerifying) && styles.verifyButtonDisabled
-            ]} 
+              (otp.join('').length !== 6 || isVerifying) &&
+                styles.verifyButtonDisabled,
+            ]}
             onPress={() => handleVerifyOtp()}
-            disabled={otp.join('').length !== 6 || isVerifying}
-          >
-            <Text style={[
-              styles.verifyButtonText,
-              (otp.join('').length !== 6 || isVerifying) && styles.verifyButtonTextDisabled
-            ]}>
+            disabled={otp.join('').length !== 6 || isVerifying}>
+            <Text
+              style={[
+                styles.verifyButtonText,
+                (otp.join('').length !== 6 || isVerifying) &&
+                  styles.verifyButtonTextDisabled,
+              ]}>
               {isVerifying ? 'Verifying...' : 'Verify OTP'}
             </Text>
           </TouchableOpacity>
@@ -218,23 +233,20 @@ setIsVerifying(false)
         {/* Resend Section */}
         <View style={styles.resendSection}>
           <Text style={styles.resendText}>Didn't receive the code?</Text>
-          
+
           {canResend ? (
             <TouchableOpacity onPress={handleResendOtp}>
               <Text style={styles.resendButton}>Resend OTP</Text>
             </TouchableOpacity>
           ) : (
-            <Text style={styles.timerText}>
-              Resend OTP in {timer}s
-            </Text>
+            <Text style={styles.timerText}>Resend OTP in {timer}s</Text>
           )}
         </View>
 
         {/* Back Button */}
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
+          onPress={() => navigation.goBack()}>
           <Text style={styles.backButtonText}>← Change Phone Number</Text>
         </TouchableOpacity>
       </ScrollView>
