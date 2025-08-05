@@ -43,7 +43,7 @@ const TiffinTabs = () => {
       tabBarIcon: ({ focused }) => {
         const icons = {
           Home: require('../../assets/Home.png'),
-          MyOrders: require('../../assets/Hand.png'),
+          MyOrders: require('../../assets/orderss.png'),
           Profile: require('../../assets/Profile.png')
         };
 
