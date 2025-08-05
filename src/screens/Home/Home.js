@@ -29,6 +29,7 @@ const cardPositions = useRef({}); // track Y position of each card
       cuisineType: 'North Indian',
             latitude: 26.873036,
     longitude: 75.686512,
+    distance : 2.5
     },
     {
       id: '2',
@@ -47,6 +48,7 @@ const cardPositions = useRef({}); // track Y position of each card
       cuisineType: 'Punjabi',
           latitude: 28.6139,
     longitude: 77.2090,
+    distance : 2.8
     },
     {
       id: '3',
@@ -65,6 +67,7 @@ const cardPositions = useRef({}); // track Y position of each card
       cuisineType: 'South Indian',
          latitude: 28.6139,
     longitude: 77.2090,
+    distance : 3.4
     },
     {
       id: '4',
@@ -83,6 +86,7 @@ const cardPositions = useRef({}); // track Y position of each card
       cuisineType: 'Gujarati',
           latitude: 28.6139,
     longitude: 77.2090,
+    distance : 1.2
     },
     {
       id: '5',
@@ -101,6 +105,7 @@ const cardPositions = useRef({}); // track Y position of each card
       cuisineType: 'Biryani Special',
          latitude: 28.6139,
     longitude: 77.2090,
+    distance : 2.1
     },
     {
       id: '6',
@@ -119,6 +124,7 @@ const cardPositions = useRef({}); // track Y position of each card
       cuisineType: 'Maharashtrian',
            latitude: 28.6139,
     longitude: 77.2090,
+    distance : 4.5
     },
     {
       id: '7',
@@ -137,6 +143,7 @@ const cardPositions = useRef({}); // track Y position of each card
       cuisineType: 'Rajasthian',
        latitude: 28.6139,
     longitude: 77.2090,
+    distance : 3.9
     },
   ];
 
@@ -242,7 +249,7 @@ const cardPositions = useRef({}); // track Y position of each card
                 onPress={() => handleTiffinCardPress(item)}
                 latitude={item.latitude}
 longitude={item.longitude}
-
+                distance={item.distance}
               />
             ))
           ) : (

@@ -3,7 +3,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NavigationContainer } from '@react-navigation/native';
 import Home from '../screens/Home/Home';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Image, View, Text, ActivityIndicator } from 'react-native';
+import { Image, View, Text, ActivityIndicator, TouchableOpacity } from 'react-native';
 import TiffinDetail from '../screens/Details/TiffinDetail';
 import MyOrders from '../screens/MyOrders/MyOrders';
 import SplashScreen from '../screens/splash/splash';
@@ -16,6 +16,10 @@ import AuthStack from './AuthStack';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
+
+const CustomTabBarButton = (props) => (
+  <TouchableOpacity activeOpacity={1} {...props} />
+);
 
 // Tab navigator with Home and Search tabs
 const TiffinTabs = () => {
@@ -34,11 +38,12 @@ const TiffinTabs = () => {
       },
       headerShown: false,
       tabBarActiveTintColor: colors.Primary, // 👈 Your custom active color
+      tabBarButton: (props) => <CustomTabBarButton {...props} />, 
       tabBarInactiveTintColor: '#999',
       tabBarIcon: ({ focused }) => {
         const icons = {
           Home: require('../../assets/Home.png'),
-          MyOrders: require('../../assets/Orders.webp'),
+          MyOrders: require('../../assets/Hand.png'),
           Profile: require('../../assets/Profile.png')
         };
 
