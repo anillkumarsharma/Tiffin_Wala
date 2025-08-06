@@ -13,6 +13,7 @@ import Profile from '../screens/Profile/Profile';
 import OTPScreen from '../screens/Auth/OTPSceen';
 import { useAuth } from '../Context/AuthContext';
 import AuthStack from './AuthStack';
+import OrderDetail from '../screens/OrderDetails/OrderDetails';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -80,6 +81,7 @@ const AppStack = () => (
      {/* 🔥 Add login flow here as fallback */}
     <Stack.Screen name='Login' component={LoginScreen} />
     <Stack.Screen name='OTPScreen' component={OTPScreen} />
+    <Stack.Screen name='OrderDetail' component={OrderDetail}/>
   </Stack.Navigator>
 );
 

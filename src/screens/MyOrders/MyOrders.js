@@ -74,6 +74,12 @@ const fetchOrders = async () => {
     return orders.filter(order => order.status === activeTab);
   };
 
+   const handleOrderPress = (order) => {
+    // Navigate to order detail screen
+    navigation.navigate('OrderDetail', { order: order });
+  };
+
+
   const handleTrackOrder = (order) => {
     // Navigate to order tracking screen
     console.log('Track order:', order.id);
@@ -87,7 +93,9 @@ const fetchOrders = async () => {
   };
 
   const renderOrderCard = (order) => (
-    <View key={order.id} style={styles.orderCard}>
+    <TouchableOpacity key={order.id} style={styles.orderCard}
+     onPress={() => handleOrderPress(order)}
+      activeOpacity={0.7}>
       {/* Order Header */}
       <View style={styles.orderHeader}>
         <View style={styles.orderHeaderLeft}>
@@ -140,7 +148,7 @@ const fetchOrders = async () => {
           )}
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
