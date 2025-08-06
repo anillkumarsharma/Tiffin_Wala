@@ -575,7 +575,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f8f9fa',
   },
   selectedReasonOption: {
-    backgroundColor: '#e8f4fd',
+    backgroundColor: '#FFFFFF',
     borderColor: colors.Primary,
     borderWidth: 1,
   },
@@ -630,13 +630,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ddd',
     paddingVertical: 14,
+    borderColor: colors.Primary,
     borderRadius: 8,
     marginRight: 8,
   },
   cancelButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#666',
+    color: colors.Primary,
     textAlign: 'center',
   },
   confirmCancelButton: {
