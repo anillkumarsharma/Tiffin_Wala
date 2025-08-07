@@ -216,7 +216,13 @@ const cardPositions = useRef({}); // track Y position of each card
 
 
   return (
-    <View style={styles.container}>
+    <ScrollView 
+        ref={scrollViewRef}
+        style={styles.scrollView} 
+        showsVerticalScrollIndicator={false}
+        onScroll={handleScroll}
+        scrollEventThrottle={100}
+      > 
       {/* Header */}
       <AdBanner onAdPress={handleAdPress} />
 
@@ -247,13 +253,7 @@ const cardPositions = useRef({}); // track Y position of each card
       </View>
 
       {/* Tiffin Cards */}
-      <ScrollView 
-        ref={scrollViewRef}
-        style={styles.scrollView} 
-        showsVerticalScrollIndicator={false}
-        onScroll={handleScroll}
-        scrollEventThrottle={100}
-      >
+     
         <View style={styles.cardsContainer}>
           {filteredTiffinData.length > 0 ? (
             filteredTiffinData?.map((item, index) => (
@@ -286,8 +286,7 @@ longitude={item.longitude}
             </View>
           )}
         </View>
-      </ScrollView>
-    </View>
+    </ScrollView>
   );
 };
 

@@ -5,9 +5,16 @@ import ErrorPage from './src/screens/ErrorPage/Errorpage';
 import NetInfo from '@react-native-community/netinfo';
 import { AuthProvider } from './src/Context/AuthContext';
 import { View, Text } from 'react-native';
+import messaging from '@react-native-firebase/messaging';
+import { requestUserPermission } from './src/services/permissions';
 
 const App = () => {
   const [isConnected, setIsConnected] = useState(true);
+
+
+  useEffect(() => {
+  requestUserPermission();
+}, []);
 
   useEffect(() => {
     SplashScreen.hide();
